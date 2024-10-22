@@ -32,5 +32,3 @@ elif selected == "Mimi":
 elif selected == "Habits":
     with page_container:
         display_habit()
-
-# TODO: How to change the theme to customised theme
