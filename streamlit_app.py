@@ -8,7 +8,7 @@ from pages.habit import display_habit
 from pages.dashboard import display_dashboard
 
 # Set the page configuration to wide layout
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
 
 page_container = st.container()
 
