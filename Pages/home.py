@@ -5,13 +5,6 @@ import streamlit as st
 def display_home():
     
 
-  # Set the page config to use wide layout
-  st.set_page_config(
-      page_title="Mello", 
-      layout="wide", 
-      initial_sidebar_state="collapsed"
-  )
-
   # Add custom CSS to center the title and change font size
   st.markdown(
       """
