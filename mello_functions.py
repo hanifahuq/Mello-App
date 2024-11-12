@@ -25,3 +25,23 @@ def get_db_connection():
             database=DATABASE,
             schema =SCHEMA
         )
+    
+def query_select(table_title: str, columns: list, user_id):
+
+    # Create connection
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Join column names into a single string for the SELECT statement
+    columns_str = ", ".join(columns)
+    query = "SELECT " + columns_str + " FROM " + table_title + " WHERE user_id = " + str(user_id)
+
+    # Get data
+    cursor.execute(query)
+    data = cursor.fetch_pandas_all()
+
+    # Close connection
+    cursor.close()
+    conn.close()
+
+    return data  # Returns None if not found, else returns (user_id, name)
