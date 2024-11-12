@@ -1,8 +1,15 @@
 import streamlit as st
 from streamlit_calendar import calendar
 import pandas as pd
+from datetime import datetime
+
 
 def display_habit():
+
+    # Initialize calendar events if they don't exist in session state
+    if'calendar_events' not in st.session_state:
+        st.session_state['calendar_events'] = []
+
     st.title("Create a new habit")
 
     habit_regularity = ["Daily", "Weekly", "Monthly"]
@@ -41,6 +48,34 @@ def display_habit():
     }, ]
 
     # Create a calendar widget
-    selected_date = calendar(events=st.session_state.get("events", events))
+    #selected_date = calendar(events=st.session_state.get("events", events))
 
-    st.write(selected_date)
+    #st.write(selected_date)
+
+
+    # Ensure calendar_events is a list before passing to the calendar widget
+    if isinstance(st.session_state['calendar_events'], list):
+        selected_date = calendar(events=st.session_state['calendar_events'])
+    else:
+        st.error("Error: calendar_events should be a list of event dictionaries.")
+        selected_date = None
+
+    #if selected_date:
+        #st.write(f"Selected date: {selected_date}")
+
+    # Show the list of upcoming events
+    if st.session_state['calendar_events']:
+        st.write("Upcoming Events:")
+        for event in st.session_state['calendar_events']:
+            # Ensure each event is a dictionary with the expected keys
+            if isinstance(event, dict) and "title" in event:
+                event_datetime = datetime.fromisoformat(event['datetime'])
+                st.write(f"- {event['title']} on {event_datetime.strftime('%Y-%m-%d %H:%M')}")
+            else:
+                st.error("Error: Invalid event format detected.")
+    else:
+        st.write("No events scheduled yet.")
+
+
+
+

@@ -14,7 +14,7 @@ page_container = st.container()
 
 selected = option_menu(
     None,
-    ["Home", "Journal", "Mimi", "Dashboard", "Habits"],
+    ["Home", "Journal", "Mimi", "Dashboard", "Habits/Calendar"],
     default_index = 0,
     icons = [],
     orientation = "horizontal"
@@ -29,7 +29,7 @@ elif selected == "Journal":
 elif selected == "Mimi":
     with page_container:
         display_mimi()
-elif selected == "Habits":
+elif selected == "Habits/Calendar":
     with page_container:
         display_habit()
 
