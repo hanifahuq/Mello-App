@@ -1,8 +1,24 @@
 import streamlit as st
 import time
 from playsound import playsound
+import requests
+from pprint import pprint
+import json
+import pandas as pd
+import os
+from dotenv import load_dotenv
 
 def display_journal():
+    # Load environment variables from the .env file
+    load_dotenv()
+
+    # Access the OpenAI API key
+    api_key = os.getenv('API_KEY')
+
+    if api_key:
+        print(f"API Key loaded successfully!")
+    else:
+        print("Error:API Key not found!")
 
     # Add header
     st.title("How was your day?")
@@ -11,7 +27,7 @@ def display_journal():
     with st.form(key = "Journal Entry"):
         
         # Journal entry
-        st.text_area("How was your day?")
+        journal_entry = st.text_area("How was your day?", value=st.session_state.get('journal_text', ''))
 
         # Habit tracking
         ## Temporary habits variable
@@ -42,17 +58,51 @@ def display_journal():
     # Show success when information is stored
     # Show notification and play sound when mimi is ready to chat
     if submit_button:
-        chat_ready = False # Set chat ready to false 
+        st.session_state['journal_text'] = journal_entry #save the journal entry
+        #chat_ready = False # Set chat ready to false 
         with submitted_container:
             st.success("Journal for today submitted!")
 
-        # TODO: Add in AI code here (Maybe make mimi page a class) and check with abby
-        chat_ready = True
-        if chat_ready:
-            with col3:
-                # Load and display the image from the assets folder
-                image_path = "assets/mimi-notification.png"  # Adjust the path if necessary
-                st.image(image_path, use_column_width=False, width = 85)
-            
-            # Create a button to play the audio
-            playsound('assets/cat-meow.mp3')
+            # TODO: Add in AI code here (Maybe make mimi page a class) and check with abby
+            chat_ready = True
+            if chat_ready:
+                # Display the image centered using `st.image`
+                with notif_container:
+                    st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
+                    st.image("assets/mimi-notification.png", width=85)
+                    st.markdown("</div>", unsafe_allow_html=True)
+
+                # Create a button to play the audio
+                playsound('assets/cat-meow.mp3')
+
+
+
+                # Define the API URL
+                url = "https://api.apilayer.com/text_to_emotion"
+
+                # Convert the journal entry to bytes (utf-8 encoded)
+                payload = journal_entry.encode("utf-8")
+
+                # Define headers with API key (replace with your actual API key)
+                headers = {
+                    "apikey": api_key
+                }
+
+                # Make the POST request to the API
+                response = requests.request("POST", url, headers=headers, data=payload)
+
+                # Get the status code of the response
+                status_code = response.status_code
+
+                # Check if the request was successful
+                if status_code == 200:
+                    # Parse the response to a dictionary
+                    result = json.loads(response.text)
+                    
+                    # Print the emotions in the journal entry
+                    print("\nEmotions detected in your journal entry:")
+                    for emotion, score in result.items():
+                        print(f"{emotion}: {score}")
+                else:
+                    # Print error message if the request failed
+                    print(f"Error: Unable to process the request. Status Code: {status_code}")
