@@ -107,3 +107,18 @@ def insert_data(table_title: str, columns: tuple, data: tuple):
         # Close the cursor and connection
         cursor.close()
         conn.close()
+
+def check_login():
+    """
+    Checks if user has logged in to the session
+
+    Params:
+        None
+    
+    Returns:
+        Bool
+    """
+
+    if 'username' in st.session_state:
+        return True
+    else: return False
