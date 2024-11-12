@@ -6,6 +6,16 @@ import os
 
 def get_db_connection():
 
+    """
+    Establishes connection with snowflake using credentials set up in env
+
+    Params: 
+        None
+
+    Returns: 
+        None
+    """
+
     load_dotenv()
 
     # Setting up env and connection variables:
@@ -26,7 +36,19 @@ def get_db_connection():
             schema =SCHEMA
         )
     
-def query_select(table_title: str, columns: list, user_id):
+def query_select(user_id, table_title: str,  *columns: str):
+
+    """
+    Extracts dataframe based on specific user using SELECT SQL function from snowflake data. 
+
+    Params:
+        user_id: User logged in
+        table_title (str): Title of snowflake table to select information from
+        columns: Column data to extract
+        
+    Returns:
+        pd.DataFrame
+    """
 
     # Create connection
     conn = get_db_connection()
@@ -46,7 +68,20 @@ def query_select(table_title: str, columns: list, user_id):
 
     return data  # Returns None if not found, else returns (user_id, name)
 
-def insert_data(table_title: str, columns: list, *data):
+def insert_data(table_title: str, columns: tuple, data: tuple):
+    """
+    Inserts a row of data into snowflake table
+
+    Params:
+        table_title (str): Title of snowflake table to select information from
+        columns (list): List of column titles 
+        data (str): 
+
+    Returns:
+        None
+
+    """
+
     # Validate the length of data matches columns
     if len(columns) != len(data):
         raise ValueError("The number of columns and data values must match.")
