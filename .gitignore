@@ -1,5 +1,8 @@
 .streamlit/secrets.toml
 
+# api key to ignore
+.env
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
