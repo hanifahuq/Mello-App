@@ -8,6 +8,7 @@ from pages.journal import display_journal
 from pages.mimi import display_mimi
 from pages.habit import display_habit
 from pages.dashboard import display_dashboard
+from pages.about import display_about
 
 # Set the page configuration to wide layout
 st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
@@ -74,7 +75,7 @@ else:
 
     selected = option_menu(
         None,
-        ["Home", "Journal", "Mimi", "Dashboard", "Habits/Calendar"],
+        ["Home", "Journal", "Mimi", "Dashboard", "Habits/Calendar", "About"],
         default_index = 0,
         icons = [],
         orientation = "horizontal"
@@ -89,9 +90,13 @@ else:
     elif selected == "Mimi":
         with page_container:
             display_mimi()
+    elif selected == 'Dashboard':
+        with page_container:
+            display_dashboard()
     elif selected == "Habits/Calendar":
         with page_container:
             display_habit()
-
-
+    elif selected == "About":
+        with page_container:
+            display_about()
 

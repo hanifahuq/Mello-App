@@ -10,14 +10,17 @@ def display_habit():
     if'calendar_events' not in st.session_state:
         st.session_state['calendar_events'] = []
 
+    if'habits' not in st.session_state:
+        st.session_state['habits'] = []
+
     st.title("Create a new habit")
 
     habit_regularity = ["Daily", "Weekly", "Monthly"]
 
     with st.expander("Add a new habit", expanded= False):
 
-        st.text_input("Habit Title")
-        st.number_input("How long do you want to track this habit?", min_value= 1, value = 30, step= 1)
+        title = st.text_input("Habit Title")
+        duration = st.number_input("How long do you want to track this habit?", min_value= 1, value = 30, step= 1)
 
         frequency = st.selectbox("How often?", options = habit_regularity, index= 0)
 
@@ -33,24 +36,15 @@ def display_habit():
             st.write(f"Repeating on {day_of_week} every week.")
         submitted = st.button("Create Habit")
                 
-        if submitted:
-            st.success("New habit created")
-
-    # Add temporary events
-    events = [{
-        "title": "Event 1",
-        "color": "#AB9EE2",
-        "start": "2024-10-24"
-    }, {
-        "title": "Event 1",
-        "color": "#AB9EE2",
-        "start": "2024-10-25"
-    }, ]
-
-    # Create a calendar widget
-    #selected_date = calendar(events=st.session_state.get("events", events))
-
-    #st.write(selected_date)
+        if submitted and title:
+            new_habit = {
+                'title': title,
+                'duration' : duration, 
+                'frequency' : frequency,
+                'completed_dates' : []
+            }
+            st.session_state['habits'].append(new_habit)
+            st.success("New habit created!")
 
 
     # Ensure calendar_events is a list before passing to the calendar widget
@@ -60,9 +54,8 @@ def display_habit():
         st.error("Error: calendar_events should be a list of event dictionaries.")
         selected_date = None
 
-    #if selected_date:
-        #st.write(f"Selected date: {selected_date}")
-
+    
+    
     # Show the list of upcoming events
     if st.session_state['calendar_events']:
         st.write("Upcoming Events:")
