@@ -1,2 +1,10 @@
+openai==0.28.0
 streamlit
-openai
+streamlit-option-menu
+pandas
+streamlit-calendar
+playsound
+beautifulsoup4
+requests
+python-dotenv
+snowflake-connector-python
