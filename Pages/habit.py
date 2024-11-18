@@ -2,21 +2,7 @@ import streamlit as st
 from streamlit_calendar import calendar
 import pandas as pd
 from datetime import datetime, timedelta, date
-import sys
-import os
-
-# Save the original sys.path
-original_sys_path = sys.path.copy()
-
-# Add the utils directory to sys.path temporarily
-utils_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-sys.path.insert(0, utils_dir)
-
-# Import the functions from mello_functions.py
-import utils.mello_functions as mf
-
-# Restore the original sys.path
-sys.path = original_sys_path
+import mello_functions as mf
 
 def display_habit():
 
