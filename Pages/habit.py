@@ -146,8 +146,6 @@ def display_habit():
     # else:
     #     st.write("No events scheduled yet.")
 
-    events = pd.DataFrame()
-
     # st.write(st.session_state['events_loaded'] if 'events_loaded' in st.session_state))
 
     # Extract all events

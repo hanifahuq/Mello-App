@@ -8,6 +8,8 @@ import pandas as pd
 import os
 from dotenv import load_dotenv
 from datetime import date
+import mello_functions as mf
+from datetime import datetime
 
 def display_journal():
 
@@ -27,10 +29,23 @@ def display_journal():
         print(f"API Key loaded successfully!")
     else:
         print("Error:API Key not found!")
+    
+    # TODO put this into mello functions -- repeated code from habit.py
+    # Get all events due for today
+    if ('events_loaded' not in st.session_state) or (st.session_state['events_loaded'] == False):
+        events = mf.query_select("events", columns = ("event_id", "event_title", "assigned_date", "completed"))
+
+        # Cache the grouped events and mark as loaded
+        st.session_state['events'] = events
+        st.session_state['events_loaded'] = True
+    else:
+        # Retrieve cached grouped events
+        events = st.session_state['events']
+
+    todays_events = events[events['ASSIGNED_DATE'] == datetime.today().date()]
 
     # Add header
     st.title("How was your day?")
-
 
     # Create journal entry form to add to table
     with st.form(key = "Journal Entry"):
@@ -38,8 +53,12 @@ def display_journal():
         # Journal entry
         journal_entry = st.text_area("How was your day?", value=st.session_state.get('journal_text', ''))
 
+        for index, event in todays_events.iterrows():
+            st.checkbox(label = event["EVENT_TITLE"], key= 'eventcheck_' + str(index))
+
         # Create a form submit button
         submit_button = st.form_submit_button("Submit")
+
     
     # Initialise container that will contain the success message
     submitted_container = st.container()
@@ -56,6 +75,21 @@ def display_journal():
     # Show notification and play sound when mimi is ready to chat
     if submit_button:
         st.session_state['journal_text'] = journal_entry #save the journal entry
+        
+        # Update the events database
+        for index, event in todays_events.iterrows():
+            checkbox_key = f'eventcheck_{index}'
+            if st.session_state.get(checkbox_key):  # Check if the checkbox is checked
+                None
+                # update_data(
+                #     table_name="events",
+                #     column_to_update="completed",
+                #     new_value=True,
+                #     condition_column="event_id",
+                #     condition_value=event['EVENT_ID']
+                # )
+
+
         #chat_ready = False # Set chat ready to false 
         with submitted_container:
             st.success("Journal for today submitted!")
@@ -104,20 +138,20 @@ def display_journal():
                 print(f"Error: Unable to process the request. Status Code: {status_code}")
 
 
-     # Display and Track Habit Completion
-    st.subheader("Habit Tracker")
-    today = date.today()
-    if st.session_state['habits']:
-        for habit in st.session_state['habits']:
-            st.write(f"**{habit['title']}**")
-            completed_today = today in habit['completed_dates']
-            if st.checkbox(f"Mark '{habit['title']}' as completed for {today}", value=completed_today, key=f"{habit['title']}_{today}"):
-                if today not in habit['completed_dates']:
-                    habit['completed_dates'].append(today)
-                    st.success(f"'{habit['title']}' marked as completed for today.")
-            else:
-                if today in habit['completed_dates']:
-                    habit['completed_dates'].remove(today)
-                    st.info(f"'{habit['title']}' marked as incomplete.")
-    else:
-        st.write("No habits created yet.")
+    #  # Display and Track Habit Completion
+    # st.subheader("Habit Tracker")
+    # today = date.today()
+    # if st.session_state['habits']:
+    #     for habit in st.session_state['habits']:
+    #         st.write(f"**{habit['title']}**")
+    #         completed_today = today in habit['completed_dates']
+    #         if st.checkbox(f"Mark '{habit['title']}' as completed for {today}", value=completed_today, key=f"{habit['title']}_{today}"):
+    #             if today not in habit['completed_dates']:
+    #                 habit['completed_dates'].append(today)
+    #                 st.success(f"'{habit['title']}' marked as completed for today.")
+    #         else:
+    #             if today in habit['completed_dates']:
+    #                 habit['completed_dates'].remove(today)
+    #                 st.info(f"'{habit['title']}' marked as incomplete.")
+    # else:
+    #     st.write("No habits created yet.")
