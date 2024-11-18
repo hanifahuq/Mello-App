@@ -168,28 +168,30 @@ def display_habit():
     if ('events_loaded' not in st.session_state) or (st.session_state['events_loaded'] == False):
         events = mf.query_select("events", columns = ("event_id", "event_title", "assigned_date", "completed"))
     
-        # st.dataframe(events[['EVENT_ID', 'EVENT_TITLE', 'ASSIGNED_DATE']])
-        grouped_events = events.groupby('EVENT_TITLE').agg(
-            start_date = ('ASSIGNED_DATE','min'), 
-            end_date = ('ASSIGNED_DATE', 'max')
-        ).reset_index()
+        # # st.dataframe(events[['EVENT_ID', 'EVENT_TITLE', 'ASSIGNED_DATE']])
+        # grouped_events = events.groupby('EVENT_TITLE').agg(
+        #     start_date = ('ASSIGNED_DATE','min'), 
+        #     end_date = ('ASSIGNED_DATE', 'max')
+        # ).reset_index()
 
         # Cache the grouped events and mark as loaded
-        st.session_state['grouped_events'] = grouped_events
+        st.session_state['events'] = events
         st.session_state['events_loaded'] = True
     else:
         # Retrieve cached grouped events
-        grouped_events = st.session_state['grouped_events']
+        events = st.session_state['events']
 
-    st.dataframe(grouped_events)
+    st.dataframe(events)
 
     formatted_events = [
         {
             "title" : row['EVENT_TITLE'], 
-            "start": str(row['start_date']), 
-            "end": str(row['end_date'])
+            "start": str(row['ASSIGNED_DATE']), 
+            "end": str(row['ASSIGNED_DATE']),
+            "backgroundColor": "#4B644A" if row['COMPLETED'] else "#736C96",
+            "borderColor": "#4B644A" if row['COMPLETED'] else "#736C96"
             
-            } for _, row in grouped_events.iterrows()]
+            } for _, row in events.iterrows()]
     
     # test_event = [{"title": 'hello', 
     #                'start': str(date(2024, 11, 18)),  # Correct date format (year, month, day)
