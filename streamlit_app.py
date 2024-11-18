@@ -21,9 +21,9 @@ def set_session_user(username):
 
     user_info = mf.query_select("user_accounts", username = username, columns = ("name", "user_id"))
 
-    st.session_state['username'] = username
-    st.session_state['user_id'] = user_info['user_id'.upper()]
-    st.session_state['name'] = user_info['name'.upper()]
+    st.session_state['username'] = username[0]
+    st.session_state['user_id'] = user_info['user_id'.upper()][0]
+    st.session_state['name'] = user_info['name'.upper()][0]
 
     st.rerun()
 

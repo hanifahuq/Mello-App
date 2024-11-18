@@ -126,13 +126,13 @@ def display_habit():
             # Structure the data for insertion
             habit_data = [(user_id, title, date) for date in dates]
 
+            # Insert data into events database
             mf.insert_multiple_data("events", 
                            columns = ("user_id", "event_title", "assigned_date"),
                            data = habit_data)
-            
-            # Display the generated dates
-            st.write("Generated habit tracking dates:")
-            st.dataframe(habit_data)
+
+            st.session_state['events_loaded'] = False
+            st.rerun()
             
             # Here you could save the habit_data to a database or file
             # For example:
@@ -159,6 +159,11 @@ def display_habit():
     # else:
     #     st.write("No events scheduled yet.")
 
+    # Extract all events
+    if st.session_state['events_loaded'] == False:
+        events = mf.query_select("events", columns = ("event_title", "assigned_date", "completed"))
+        st.session_state['events_loaded'] = True
+    st.table(events)
 
 
 

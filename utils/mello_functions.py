@@ -58,7 +58,7 @@ def query_select(table_title: str, columns: tuple, user_id: int = None, username
     # Ensure at least one filter criterion is provided
     if not user_id and not username:
         try:
-            user_id = st.session_state['user_id']
+            user_id = int(st.session_state['user_id'])
         except:
             raise ValueError("user_id in session state is not defined. Either user_id or username must be provided to filter the query.")
 
