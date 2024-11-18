@@ -1,7 +1,7 @@
 import streamlit as st
 from streamlit_calendar import calendar
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import sys
 import os
 
@@ -21,6 +21,7 @@ sys.path = original_sys_path
 def display_habit():
 
     user_id = int(st.session_state['user_id'])
+
 
     # Initialize calendar events if they don't exist in session state
     if'calendar_events' not in st.session_state:
@@ -159,11 +160,44 @@ def display_habit():
     # else:
     #     st.write("No events scheduled yet.")
 
+    events = pd.DataFrame()
+
+    # st.write(st.session_state['events_loaded'] if 'events_loaded' in st.session_state))
+
     # Extract all events
-    if st.session_state['events_loaded'] == False:
-        events = mf.query_select("events", columns = ("event_title", "assigned_date", "completed"))
+    if ('events_loaded' not in st.session_state) or (st.session_state['events_loaded'] == False):
+        events = mf.query_select("events", columns = ("event_id", "event_title", "assigned_date", "completed"))
+    
+        # st.dataframe(events[['EVENT_ID', 'EVENT_TITLE', 'ASSIGNED_DATE']])
+        grouped_events = events.groupby('EVENT_TITLE').agg(
+            start_date = ('ASSIGNED_DATE','min'), 
+            end_date = ('ASSIGNED_DATE', 'max')
+        ).reset_index()
+
+        # Cache the grouped events and mark as loaded
+        st.session_state['grouped_events'] = grouped_events
         st.session_state['events_loaded'] = True
-    st.table(events)
+    else:
+        # Retrieve cached grouped events
+        grouped_events = st.session_state['grouped_events']
+
+    st.dataframe(grouped_events)
+
+    formatted_events = [
+        {
+            "title" : row['EVENT_TITLE'], 
+            "start": str(row['start_date']), 
+            "end": str(row['end_date'])
+            
+            } for _, row in grouped_events.iterrows()]
+    
+    # test_event = [{"title": 'hello', 
+    #                'start': str(date(2024, 11, 18)),  # Correct date format (year, month, day)
+    #                 "end": str(date(2024, 11, 20)),
+    #             #    "allDay" : True,
+    #                "backgroundColor": "#FFBD45"}]
+    
+    calendar(events = formatted_events)
 
 
 
