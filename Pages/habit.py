@@ -2,14 +2,25 @@ import streamlit as st
 from streamlit_calendar import calendar
 import pandas as pd
 from datetime import datetime, timedelta
+import sys
 import os
 
-os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+# Save the original sys.path
+original_sys_path = sys.path.copy()
 
+# Add the utils directory to sys.path temporarily
+utils_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, utils_dir)
+
+# Import the functions from mello_functions.py
 import utils.mello_functions as mf
 
+# Restore the original sys.path
+sys.path = original_sys_path
 
 def display_habit():
+
+    user_id = int(st.session_state['user_id'])
 
     # Initialize calendar events if they don't exist in session state
     if'calendar_events' not in st.session_state:
@@ -20,7 +31,11 @@ def display_habit():
 
     st.title("Create a new habit")
 
-    habit_regularity = ["Daily", "Weekly", "Monthly"]
+    habit_regularity = [
+        "Daily", 
+        "Weekly", 
+        # "Monthly"
+    ]
 
     today = datetime.today()
 
@@ -30,10 +45,14 @@ def display_habit():
 
         # Get start date
         date_range = st.date_input("How long do you want to track this habit?",
-                                   values = (today, today + timedelta(days = 7)))
+                                   value = (today, today + timedelta(days = 7)),
+                                   min_value = today)
         
-        start_date = date_range[0]
-        end_date =  date_range[1]
+        if len(date_range) == 1:
+            st.warning("Make sure to add a beginning and end date!")
+        else:
+            start_date = date_range[0]
+            end_date =  date_range[1]
 
         # TODO put this line in mimi:
         # st.time_input("what time?", step = 1800)
@@ -41,12 +60,12 @@ def display_habit():
         frequency = st.selectbox("How often?", options = habit_regularity, index= 0)
 
         # Display additional input fields based on the frequency selected
-        if frequency == "Monthly":
-            day_of_month = st.number_input("On which day of the month would you like to repeat this habit?", 
-                                            min_value=1, max_value=31, value=1, step=1)
-            st.write(f"Repeating on the {day_of_month} day of each month.")
+        # if frequency == "Monthly":
+        #     day_of_month = st.number_input("On which day of the month would you like to repeat this habit?", 
+        #                                     min_value=1, max_value=31, value=1, step=1)
+        #     st.write(f"Repeating on the {day_of_month} day of each month.")
 
-        elif frequency == "Weekly":
+        if frequency == "Weekly":
             day_of_week = st.selectbox("On which day of the week would you like to repeat this habit?", 
                                         options=["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
             st.write(f"Repeating on {day_of_week} every week.")
@@ -79,41 +98,37 @@ def display_habit():
                 #         current_date += timedelta(days=7)
 
                 while current_date <= end_date:
-                    # If the date does not land on the target day, then increase the day till it reaches target day
+                    # If the date does not land on the target weekday, then increase the day till it reaches target
                     if current_date.weekday() != target_day:
                         current_date += timedelta(days = 1)
                     else:
-                        # Record the date if same as target day and change date to the week after
+                        # Record the date if same as target weekday and change date to the week after
                         dates.append(current_date)
                         current_date += timedelta(days=7)
                     
-            elif frequency == "Monthly":
-                current_date = start_date
-                months = duration // 30 + 1
-                for _ in range(months):
-                    try:
-                        new_date = current_date.replace(day=day_of_month)
-                        if new_date >= start_date and len(dates) < duration:
-                            dates.append(new_date)
-                    except ValueError:
-                        # Handle cases where the day doesn't exist in the month
-                        pass
-                    # Move to next month
-                    if current_date.month == 12:
-                        current_date = current_date.replace(year=current_date.year + 1, month=1)
-                    else:
-                        current_date = current_date.replace(month=current_date.month + 1)
-            
-            # Create DataFrame with the habit data
-            habit_data = pd.DataFrame({
-                'Date': dates,
-                'Event_title': [title] * len(dates),
-                'Completed': [False] * len(dates)
-            })
+            # elif frequency == "Monthly":
+            #     current_date = start_date
+            #     months = duration // 30 + 1
+            #     for _ in range(months):
+            #         try:
+            #             new_date = current_date.replace(day=day_of_month)
+            #             if new_date >= start_date and len(dates) < duration:
+            #                 dates.append(new_date)
+            #         except ValueError:
+            #             # Handle cases where the day doesn't exist in the month
+            #             pass
+            #         # Move to next month
+            #         if current_date.month == 12:
+            #             current_date = current_date.replace(year=current_date.year + 1, month=1)
+            #         else:
+            #             current_date = current_date.replace(month=current_date.month + 1)
 
-            # mf.insert_data("events", 
-                        #    columns = ("user_id", "assigned_date", "event_title"),
-                        #    data = (st.session_state['user_id'], dates, [title] * len(dates)))
+            # Structure the data for insertion
+            habit_data = [(user_id, title, date) for date in dates]
+
+            mf.insert_multiple_data("events", 
+                           columns = ("user_id", "event_title", "assigned_date"),
+                           data = habit_data)
             
             # Display the generated dates
             st.write("Generated habit tracking dates:")

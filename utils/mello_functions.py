@@ -150,6 +150,53 @@ def insert_data(table_title: str, columns: tuple, data: tuple):
         cursor.close()
         conn.close()
 
+def insert_multiple_data(table_title: str, columns: tuple, data: list):
+    """
+    Inserts multiple rows of data into a Snowflake table.
+
+    Params:
+        table_title (str): Title of Snowflake table to insert data into.
+        columns (tuple): Tuple of column names in the table.
+        data (list of tuples): List of tuples where each tuple represents a row to insert.
+
+    Returns:
+        None
+    """
+
+    # Validate that data is a list of tuples
+    if not isinstance(data, list):
+        raise ValueError("Data must be a list of tuples.")
+    
+    if not all(isinstance(row, tuple) for row in data):
+        raise ValueError("Each element in data must be a tuple representing a row.")
+    
+    # Validate that each row of data matches the number of columns
+    if not all(len(columns) == len(row) for row in data):
+        raise ValueError("Each row of data must have the same number of elements as columns.")
+
+    # Join column names and create placeholders dynamically
+    columns_str = ', '.join(columns)
+    placeholders = ', '.join(["%s"] * len(columns))  # Create a placeholder for each column
+
+    # Construct the query string
+    insert_query = 'INSERT INTO ' + table_title + ' (' + columns_str + ')  VALUES (' + placeholders + ')'
+
+    # Set up the connection and execute the query
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Execute the insert for all rows in data
+        cursor.executemany(insert_query, data)  # Use executemany for inserting multiple rows
+        conn.commit()
+    except Exception as e:
+        print(f"Error inserting data into {table_title}: {e}")
+        conn.rollback()  # Roll back in case of error
+    finally:
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+
 def check_login():
     """
     Checks if user has logged in to the session
