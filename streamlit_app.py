@@ -1,6 +1,6 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
-import mello_functions as mf
+import utils.mello_functions as mf
 import pandas as pd
 
 from pages.home import display_home
