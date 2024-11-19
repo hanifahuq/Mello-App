@@ -1,10 +1,13 @@
 import streamlit as st
 from streamlit_calendar import calendar
 import pandas as pd
-from datetime import datetime
-
+from datetime import datetime, timedelta, date
+import mello_functions as mf
 
 def display_habit():
+
+    user_id = int(st.session_state['user_id'])
+
 
     # Initialize calendar events if they don't exist in session state
     if'calendar_events' not in st.session_state:
@@ -15,60 +18,96 @@ def display_habit():
 
     st.title("Create a new habit")
 
-    habit_regularity = ["Daily", "Weekly", "Monthly"]
+    habit_regularity = [
+        "Daily", 
+        "Weekly"
+    ]
+
+    today = datetime.today()
 
     with st.expander("Add a new habit", expanded= False):
 
         title = st.text_input("Habit Title")
-        duration = st.number_input("How long do you want to track this habit?", min_value= 1, value = 30, step= 1)
+
+        # Get start date
+        date_range = st.date_input("How long do you want to track this habit?",
+                                   value = (today, today + timedelta(days = 7)),
+                                   min_value = today)
+        
+        if len(date_range) == 1:
+            st.warning("Make sure to add a beginning and end date!")
+        else:
+            start_date = date_range[0]
+            end_date =  date_range[1]
 
         frequency = st.selectbox("How often?", options = habit_regularity, index= 0)
 
-        # Display additional input fields based on the frequency selected
-        if frequency == "Monthly":
-            day_of_month = st.number_input("On which day of the month would you like to repeat this habit?", 
-                                            min_value=1, max_value=31, value=1, step=1)
-            st.write(f"Repeating on the {day_of_month} day of each month.")
-
-        elif frequency == "Weekly":
+        if frequency == "Weekly":
             day_of_week = st.selectbox("On which day of the week would you like to repeat this habit?", 
                                         options=["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
             st.write(f"Repeating on {day_of_week} every week.")
+        
         submitted = st.button("Create Habit")
                 
         if submitted and title:
-            new_habit = {
-                'title': title,
-                'duration' : duration, 
-                'frequency' : frequency,
-                'completed_dates' : []
-            }
-            st.session_state['habits'].append(new_habit)
-            st.success("New habit created!")
+            dates = []
+            
+            # Generate dates only after form submission
+            if frequency == "Daily":
+                duration = (end_date - start_date).days  # Calculate the difference in days
+                for i in range(duration):
+                    dates.append(start_date + timedelta(days=i))
+                    
+            elif frequency == "Weekly":
+                # Convert day name to number (0 = Monday, 6 = Sunday)
+                day_numbers = {"Monday": 0, "Tuesday": 1, "Wednesday": 2, "Thursday": 3, 
+                            "Friday": 4, "Saturday": 5, "Sunday": 6}
+                target_day = day_numbers[day_of_week]
+                
+                current_date = start_date
 
+                while current_date <= end_date:
+                    # If the date does not land on the target weekday, then increase the day till it reaches target
+                    if current_date.weekday() != target_day:
+                        current_date += timedelta(days = 1)
+                    else:
+                        # Record the date if same as target weekday and change date to the week after
+                        dates.append(current_date)
+                        current_date += timedelta(days=7)
 
-    # Ensure calendar_events is a list before passing to the calendar widget
-    if isinstance(st.session_state['calendar_events'], list):
-        selected_date = calendar(events=st.session_state['calendar_events'])
+            # Structure the data for insertion
+            habit_data = [(user_id, title, date) for date in dates]
+
+            # Insert data into events database
+            mf.insert_multiple_data("events", 
+                           columns = ("user_id", "event_title", "assigned_date"),
+                           data = habit_data)
+
+            st.session_state['events_loaded'] = False
+            st.rerun()
+
+    # Extract all events
+    if ('events_loaded' not in st.session_state) or (st.session_state['events_loaded'] == False):
+        events = mf.query_select("events", columns = ("event_id", "event_title", "assigned_date", "completed"))
+
+        # Cache the grouped events and mark as loaded
+        st.session_state['events'] = events
+        st.session_state['events_loaded'] = True
     else:
-        st.error("Error: calendar_events should be a list of event dictionaries.")
-        selected_date = None
+        # Retrieve cached grouped events
+        events = st.session_state['events']
 
+    formatted_events = [
+        {
+            "title" : row['EVENT_TITLE'], 
+            "start": str(row['ASSIGNED_DATE']), 
+            "end": str(row['ASSIGNED_DATE']),
+            "backgroundColor": "#58855c" if row['COMPLETED'] else "#8479d9",
+            "borderColor": "#58855c" if row['COMPLETED'] else "#8479d9"
+            
+            } for _, row in events.iterrows()]
     
-    
-    # Show the list of upcoming events
-    if st.session_state['calendar_events']:
-        st.write("Upcoming Events:")
-        for event in st.session_state['calendar_events']:
-            # Ensure each event is a dictionary with the expected keys
-            if isinstance(event, dict) and "title" in event:
-                event_datetime = datetime.fromisoformat(event['datetime'])
-                st.write(f"- {event['title']} on {event_datetime.strftime('%Y-%m-%d %H:%M')}")
-            else:
-                st.error("Error: Invalid event format detected.")
-    else:
-        st.write("No events scheduled yet.")
-
+    calendar(events = formatted_events)
 
 
 
