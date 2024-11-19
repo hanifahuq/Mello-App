@@ -131,16 +131,23 @@ if 'username' not in st.session_state:
                     
                     try:
                         # create_user(username, name, data_permission)
-                        mf.insert_data("user_accounts", columns = ('username', 'name', 'data_permission'), data = (str(username, name, data_permission)))
+                        mf.insert_data("user_accounts", columns = ('username', 'name', 'data_permission'), data = (username, name, data_permission))
                         set_session_user(username)
 
-                    except:
+                    except Exception as e:
                         st.error("Error creating account. Contact developers.")
-      
+                        print(e)
+        
             else:
                 st.error("Please accept our terms and conditions to make an account")
 else:
     page_container = st.container()
+
+
+
+
+
+
 
     selected = option_menu(
         None,
