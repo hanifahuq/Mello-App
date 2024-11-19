@@ -1,8 +1,11 @@
 import streamlit as st
 import pandas as pd
-
+import mello_functions as mf
 
 def display_dashboard():
+
+    if 'user_id' in st.session_state:
+        user_id = int(st.session_state['user_id'])
 
      # Add custom CSS to center the title and change font size
     st.markdown(
@@ -55,5 +58,14 @@ def display_dashboard():
 
     else:
         st.write('No emotion data available to display.')
+
+
+    emotions_overtime = mf.query_select('journal_entries', user_id = user_id, columns = ('Angry', 'Fear', 'Happy', 'Sad', 'Surprise'))
+    mean_emotions = emotions_overtime.mean()
+    st.subheader('Mean of Emotions from all Journal Entries.')
+    st.bar_chart(mean_emotions)
+
+
+
 
     
