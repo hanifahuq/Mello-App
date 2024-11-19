@@ -20,7 +20,6 @@ def check_user_exists(username):
 def set_session_user(username):
 
     user_info = mf.query_select("user_accounts", username = username, columns = ("name", "user_id"))
-
     st.session_state['username'] = username
     st.session_state['user_id'] = user_info['user_id'.upper()]
     st.session_state['name'] = user_info['name'.upper()]
@@ -49,6 +48,77 @@ if 'username' not in st.session_state:
     else:
         name = st.text_input("Name")
         data_permission = st.checkbox("I comply with the terms and conditions")
+
+        with st.expander('View Terms and Conditions'):
+            st.markdown("""
+                        ### Terms and Conditions
+
+                        Last Updated: 19/11/2024
+                        Welcome to Mello. By accessing or using the App, you agree to be bound by these Terms and Conditions. If you do not agree to these terms, please do not use the App.
+
+                        1. Introduction
+                        Mello is a mental health application designed to provide journaling, AI-based advice, emotional tracking, habit creation, event scheduling, and calendar management. The App does not replace professional mental health advice or therapy.
+
+                        2. Eligibility
+                        To use the App, you must:
+                        •	Be at least 16 years old (or the minimum age required in your country for data processing consent under GDPR).
+                        •	Agree to provide accurate and truthful information during registration.
+
+                        3. Use of the App
+                        You agree to use the App for personal, non-commercial purposes only. You must not:
+                        •	Use the App in a manner that violates any laws or regulations.
+                        •	Attempt to disrupt or harm the functionality of the App or other users’ experiences.
+
+                        4. Data Collection and GDPR Compliance
+                        We value your privacy and comply with the General Data Protection Regulation (GDPR).
+                        4.1 Data We Collect
+                        •	Personal Information: Name and Username
+                        •	Journaling and habit data, calendar events, and emotional tracking logs.
+                        4.2 How We Use Your Data
+                        •	To provide personalized services and recommendations.
+                        •	To improve and maintain the App’s functionality.
+                        •	For anonymized research and analytics purposes.
+                        4.3 Your Rights
+                        Under GDPR, you have the right to:
+                        •	Access, correct, or delete your personal data.
+                        •	Withdraw your consent to data processing.
+                        •	Request data portability.
+                        You can exercise these rights by contacting us at Abbyparker@rockborne.com / Hanifahuq@rockborne.com .
+
+                        5. AI Advice and Limitations
+                        The App’s AI chatbot provides general advice based on your inputs. This advice is:
+                        •	For informational purposes only.
+                        •	Not a substitute for professional mental health advice or treatment. We strongly recommend consulting a qualified healthcare provider for any mental health concerns.
+
+                        6. Account Security
+                        You are responsible for maintaining the confidentiality of your login credentials. Notify us immediately if you suspect unauthorized use of your account.
+
+                        7. Limitation of Liability
+                        To the fullest extent permitted by law:
+                        •	Mello is not liable for any indirect, incidental, or consequential damages arising from your use of the App.
+                        •	The App is provided “as-is” without warranties of any kind.
+
+                        8. Third-Party Services
+                        The App may integrate with third-party services (e.g., payment processors). We are not responsible for the practices or terms of these third parties.
+
+                        9. Termination
+                        We reserve the right to suspend or terminate your account if you violate these Terms and Conditions.
+
+                        10. Changes to These Terms
+                        We may update these Terms from time to time. Significant changes will be communicated via email or within the App. Continued use of the App after updates constitutes acceptance of the revised Terms.
+
+                        11. Contact Information
+                        If you have questions about these Terms or your data, contact us at:
+                        Mello
+                        Email: Abbyparker@rockborne.com / Hanifahuq@rockborne.com 
+
+                        12. Governing Law
+                        These Terms are governed by the laws of the United Kingdom, without regard to conflict of laws principles.
+
+                        13. Consent
+                        By using Mello, you confirm that you have read and agree to these Terms and Conditions, including our Privacy Policy.
+
+                        """)
         create_account_button = st.button("Create Account")
 
         if create_account_button:
@@ -60,14 +130,12 @@ if 'username' not in st.session_state:
                     
                     try:
                         # create_user(username, name, data_permission)
-                        mf.insert_data("user_accounts", columns = ('username', 'name', 'data_permission'), data = (username, name, data_permission))
+                        mf.insert_data("user_accounts", columns = ('username', 'name', 'data_permission'), data = (str(username, name, data_permission)))
                         set_session_user(username)
 
                     except:
                         st.error("Error creating account. Contact developers.")
-
-                    
-                    
+      
             else:
                 st.error("Please accept our terms and conditions to make an account")
 else:
