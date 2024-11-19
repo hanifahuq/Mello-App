@@ -13,9 +13,6 @@ from pages.about import display_about
 # Set the page configuration to wide layout
 st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
 
-st.session_state['username'] = 'wadad'
-st.session_state['user_id'] = 1
-
 def check_user_exists(username):
     table = mf.query_select("user_accounts", username = username, columns = ("user_id"))
     return len(table) > 0

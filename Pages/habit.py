@@ -20,8 +20,7 @@ def display_habit():
 
     habit_regularity = [
         "Daily", 
-        "Weekly", 
-        # "Monthly"
+        "Weekly"
     ]
 
     today = datetime.today()
@@ -41,16 +40,7 @@ def display_habit():
             start_date = date_range[0]
             end_date =  date_range[1]
 
-        # TODO put this line in mimi:
-        # st.time_input("what time?", step = 1800)
-
         frequency = st.selectbox("How often?", options = habit_regularity, index= 0)
-
-        # Display additional input fields based on the frequency selected
-        # if frequency == "Monthly":
-        #     day_of_month = st.number_input("On which day of the month would you like to repeat this habit?", 
-        #                                     min_value=1, max_value=31, value=1, step=1)
-        #     st.write(f"Repeating on the {day_of_month} day of each month.")
 
         if frequency == "Weekly":
             day_of_week = st.selectbox("On which day of the week would you like to repeat this habit?", 
@@ -75,14 +65,6 @@ def display_habit():
                 target_day = day_numbers[day_of_week]
                 
                 current_date = start_date
-                # weeks = duration // 7 + 1
-                # for _ in range(weeks):
-                #     # Adjust to the next occurrence of the target day
-                #     while current_date.weekday() != target_day:
-                #         current_date += timedelta(days=1)
-                #     if len(dates) < duration:
-                #         dates.append(current_date)
-                #         current_date += timedelta(days=7)
 
                 while current_date <= end_date:
                     # If the date does not land on the target weekday, then increase the day till it reaches target
@@ -92,23 +74,6 @@ def display_habit():
                         # Record the date if same as target weekday and change date to the week after
                         dates.append(current_date)
                         current_date += timedelta(days=7)
-                    
-            # elif frequency == "Monthly":
-            #     current_date = start_date
-            #     months = duration // 30 + 1
-            #     for _ in range(months):
-            #         try:
-            #             new_date = current_date.replace(day=day_of_month)
-            #             if new_date >= start_date and len(dates) < duration:
-            #                 dates.append(new_date)
-            #         except ValueError:
-            #             # Handle cases where the day doesn't exist in the month
-            #             pass
-            #         # Move to next month
-            #         if current_date.month == 12:
-            #             current_date = current_date.replace(year=current_date.year + 1, month=1)
-            #         else:
-            #             current_date = current_date.replace(month=current_date.month + 1)
 
             # Structure the data for insertion
             habit_data = [(user_id, title, date) for date in dates]
@@ -120,43 +85,10 @@ def display_habit():
 
             st.session_state['events_loaded'] = False
             st.rerun()
-            
-            # Here you could save the habit_data to a database or file
-            # For example:
-            # habit_data.to_csv('habits.csv', index=False)
-
-
-        # Ensure calendar_events is a list before passing to the calendar widget
-        # if isinstance(st.session_state['calendar_events'], list):
-        #     selected_date = calendar(events=st.session_state['calendar_events'])
-        # else:
-        #     st.error("Error: calendar_events should be a list of event dictionaries.")
-        #     selected_date = None
-    
-    # Show the list of upcoming events
-    # if st.session_state['calendar_events']:
-    #     st.write("Upcoming Events:")
-    #     for event in st.session_state['calendar_events']:
-    #         # Ensure each event is a dictionary with the expected keys
-    #         if isinstance(event, dict) and "title" in event:
-    #             event_datetime = datetime.fromisoformat(event['datetime'])
-    #             st.write(f"- {event['title']} on {event_datetime.strftime('%Y-%m-%d %H:%M')}")
-    #         else:
-    #             st.error("Error: Invalid event format detected.")
-    # else:
-    #     st.write("No events scheduled yet.")
-
-    # st.write(st.session_state['events_loaded'] if 'events_loaded' in st.session_state))
 
     # Extract all events
     if ('events_loaded' not in st.session_state) or (st.session_state['events_loaded'] == False):
         events = mf.query_select("events", columns = ("event_id", "event_title", "assigned_date", "completed"))
-    
-        # # st.dataframe(events[['EVENT_ID', 'EVENT_TITLE', 'ASSIGNED_DATE']])
-        # grouped_events = events.groupby('EVENT_TITLE').agg(
-        #     start_date = ('ASSIGNED_DATE','min'), 
-        #     end_date = ('ASSIGNED_DATE', 'max')
-        # ).reset_index()
 
         # Cache the grouped events and mark as loaded
         st.session_state['events'] = events
@@ -165,23 +97,15 @@ def display_habit():
         # Retrieve cached grouped events
         events = st.session_state['events']
 
-    st.dataframe(events)
-
     formatted_events = [
         {
             "title" : row['EVENT_TITLE'], 
             "start": str(row['ASSIGNED_DATE']), 
             "end": str(row['ASSIGNED_DATE']),
-            "backgroundColor": "#4B644A" if row['COMPLETED'] else "#736C96",
-            "borderColor": "#4B644A" if row['COMPLETED'] else "#736C96"
+            "backgroundColor": "#58855c" if row['COMPLETED'] else "#8479d9",
+            "borderColor": "#58855c" if row['COMPLETED'] else "#8479d9"
             
             } for _, row in events.iterrows()]
-    
-    # test_event = [{"title": 'hello', 
-    #                'start': str(date(2024, 11, 18)),  # Correct date format (year, month, day)
-    #                 "end": str(date(2024, 11, 20)),
-    #             #    "allDay" : True,
-    #                "backgroundColor": "#FFBD45"}]
     
     calendar(events = formatted_events)
 
