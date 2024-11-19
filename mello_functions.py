@@ -197,6 +197,44 @@ def insert_multiple_data(table_title: str, columns: tuple, data: list):
         cursor.close()
         conn.close()
 
+def update_data(table_name: str, column_to_update: str, new_value: bool, condition_column: str, condition_value):
+    """
+    Updates a column value in Snowflake based on a condition.
+
+    Params:
+        table_name (str): Name of the Snowflake table.
+        column_to_update (str): Column to update.
+        new_value (bool): The new value to set (True or False).
+        condition_column (str): The column used to filter the rows.
+        condition_value: The value to match in the condition column.
+
+    Returns:
+        None
+    """
+    # Create the SQL UPDATE query
+    update_query = f"""
+    UPDATE {table_name}
+    SET {column_to_update} = %s
+    WHERE {condition_column} = %s
+    """
+
+    # Set up the connection and execute the query
+    conn = get_db_connection() 
+    cursor = conn.cursor()
+    
+    try:
+        # Execute the update query with parameters
+        cursor.execute(update_query, (new_value, condition_value))
+        conn.commit()
+        print(f"Successfully updated {column_to_update} to {new_value} where {condition_column} = {condition_value}.")
+    except Exception as e:
+        print(f"Error updating data: {e}")
+        conn.rollback()  # Roll back in case of error
+    finally:
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+
 def check_login():
     """
     Checks if user has logged in to the session

@@ -80,15 +80,13 @@ def display_journal():
         for index, event in todays_events.iterrows():
             checkbox_key = f'eventcheck_{index}'
             if st.session_state.get(checkbox_key):  # Check if the checkbox is checked
-                None
-                # update_data(
-                #     table_name="events",
-                #     column_to_update="completed",
-                #     new_value=True,
-                #     condition_column="event_id",
-                #     condition_value=event['EVENT_ID']
-                # )
-
+                mf.update_data(
+                    table_name="events",
+                    column_to_update="completed",
+                    new_value=True,
+                    condition_column="event_id",
+                    condition_value=event['EVENT_ID']
+                )
 
         #chat_ready = False # Set chat ready to false 
         with submitted_container:
