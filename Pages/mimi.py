@@ -218,9 +218,7 @@ def display_mimi():
                                     st.error(f"Error submitting event entry: {e}")
 
                                 st.session_state['events_loaded'] = False
-                                st.session_state['calendar_rerun'] = True
 
-            
 
                     
                     # User input field

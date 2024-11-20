@@ -53,6 +53,7 @@ def display_journal():
 
     todays_events = events[events['ASSIGNED_DATE'] == datetime.today().date()]
 
+# Inject custom CSS for Google Font
 
     # Custom CSS for styling
     st.markdown(
@@ -67,13 +68,21 @@ def display_journal():
         width: 200px;  /* Set the width of the image */
         height: 200px;  /* Set the height of the image */
     }
-    .title {
-          text-align: center;
-          font-size: 100px;  /* Increased font size for the title */
-          font-weight: 550;
-          font-style: normal;
-          margin-bottom: 20px; /* Optional: Add space below the title */
-      }
+    /* Import DM Serif Display from Google Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital,wght@0,400;1,400&display=swap');
+    
+    /* Apply the font globally */
+    html, body, [class*="css"]  {
+        font-family: 'DM Serif Display', serif;
+    }
+
+    /* Example: Apply font with specific styles */
+    .dm-serif-display-regular {
+        font-family: 'DM Serif Display', serif;
+        font-weight: 550;
+        font-style: normal;
+        font-size: 150px;
+    }
 
     </style>
     """,
@@ -89,15 +98,13 @@ def display_journal():
         f"""
         <div class="title-container">
             <img class="title-image" src = "data:image/png;base64,{image_base64}">
-            <h1 class="title">Journal</h1>
+            <h1 class="dm-serif-display-regular">Journal</h1>
             <img class="title-image" src="data:image/png;base64,{image_base64}">
         </div>
         """,
         unsafe_allow_html=True
     )
 
-
-    
     # Example prompts for the user
     example_questions = """Here are some prompts to help you get started
     
@@ -200,7 +207,7 @@ def display_journal():
                     # Print error message if the request failed
                     print(f"Error: Unable to process the request. Status Code: {status_code}")
 
-                st.session_state['calendar_rerun'] = True
+                st.session_state['events_loaded'] = False
                 st.success('Journal Submitted - Head over to Mimi!')
     else:
         st.success("You've already submitted your journal for today!")
