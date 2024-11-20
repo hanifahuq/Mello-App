@@ -6,59 +6,13 @@ import mello_functions as mf
 import base64
 
 def display_habit():
-    
-    # if ('calendar_rerun' in st.session_state) or st.session_state['calendar_rerun'] == True:
-    #     st.rerun()
-    #     st.session_state['calendar_rerun'] = False
 
     user_id = st.session_state['user_id']
-
-    # Custom CSS for styling
-    st.markdown(
-        """
-        <style>
-        .title-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;  /* Vertically align items in the center */
-        }
-        .title-image {
-            width: 200px;  /* Set the width of the image */
-            height: 200px;  /* Set the height of the image */
-        }
-        .title {
-          text-align: center;
-          font-size: 100px;  /* Increased font size for the title */
-          font-weight: 550;
-          font-style: normal;
-          margin-bottom: 20px; /* Optional: Add space below the title */
-      }
-
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
     
-    # Encode the image in base64
-    with open("assets/mimi-icons/habit-mimi.png", "rb") as file:
-        image_base64 = base64.b64encode(file.read()).decode()
-    
-        # Embed the HTML structure with the image in base64
-    st.markdown(
-        f"""
-        <div class="title-container">
-            <img class="title-image" src = "data:image/png;base64,{image_base64}">
-            <h1 class="title">Calendar</h1>
-            <img class="title-image" src="data:image/png;base64,{image_base64}">
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
+    # Insert page title
+    mf.page_title("Calendar", "assets\mimi-icons\habit-mimi.png")
 
     st.subheader("Create a new habit")
-
-
 
     habit_regularity = [
         "Daily", 

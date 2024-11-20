@@ -1,49 +1,12 @@
 import streamlit as st
+import mello_functions as mf
 import base64
 
 
 def display_about():
 
-     # Add custom CSS to center the title and change font size
-    st.markdown(
-        """
-        <style>
-        .title {
-          text-align: center;
-          font-size: 100px;  /* Increased font size for the title */
-          font-weight: 550;
-          font-style: normal;
-          margin-bottom: 20px; /* Optional: Add space below the title */
-        }
-        .title-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;  /* Vertically align items in the center */
-        }
-        .title-image {
-        width: 200px;  /* Set the width of the image */
-        height: 200px;  /* Set the height of the image */
-        }
-        </style>
-        """, unsafe_allow_html=True
-        )
-
-    # Encode the image in base64
-    with open("assets/mimi-icons/about-mimi.png", "rb") as file:
-        image_base64 = base64.b64encode(file.read()).decode()
-    
-        # Embed the HTML structure with the image in base64
-    st.markdown(
-        f"""
-        <div class="title-container">
-            <img class="title-image" src = "data:image/png;base64,{image_base64}">
-            <h1 class="title">About</h1>
-            <img class="title-image" src="data:image/png;base64,{image_base64}">
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
+    # Add page title
+    mf.page_title("About", "assets/mimi-icons/about-mimi.png")
 
     st.markdown("""
         <div style="text-align: center;">

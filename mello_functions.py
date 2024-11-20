@@ -3,7 +3,7 @@ import snowflake.connector
 from dotenv import load_dotenv
 import pandas as pd
 import os
-
+import base64
 
 
 def get_db_connection():
@@ -235,6 +235,69 @@ def update_data(table_name: str, column_to_update: str, new_value: bool, conditi
         # Close the cursor and connection
         cursor.close()
         conn.close()
+
+def import_html_img(path):
+    # Encode the image in base64
+    with open(path, "rb") as file:
+        image_base64 = base64.b64encode(file.read()).decode()
+
+    return image_base64
+
+def page_title(title:str, img_path):
+    # Add custom CSS to center the title and change font size
+    st.markdown(
+        """
+        <style>
+        .title {
+          text-align: center;
+          font-size: 100px;  /* Increased font size for the title */
+          font-weight: 550;
+          font-style: normal;
+          margin-bottom: 20px; /* Optional: Add space below the title */
+        }
+        .card {
+            background-color: #f0f2f6;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 300px;
+            margin: 0 auto; /* Center the card */
+        }
+        .card-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .title-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;  /* Vertically align items in the center */
+        }
+        .title-image {
+        width: 200px;  /* Set the width of the image */
+        height: 200px;  /* Set the height of the image */
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+        )
+    
+    # Get title image
+    # Encode the image in base64
+    title_image = import_html_img(img_path)
+    
+    # Embed the HTML structure with the image in base64
+    st.markdown(
+        f"""
+        <div class="title-container">
+            <img class="title-image" style = "margin-right: 50px" src = "data:image/png;base64,{title_image}">
+            <h1 class="dm-serif-display"style="font-size: 100px; font-weight: 600">{title}</h1>
+            <img class="title-image" style = "margin-left: 10px" src="data:image/png;base64,{title_image}">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 def check_login():
     """
