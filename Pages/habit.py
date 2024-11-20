@@ -7,19 +7,11 @@ import base64
 
 def display_habit():
     
-    if ('calendar_rerun' in st.session_state) or st.session_state['calendar_rerun'] == True:
-        st.rerun()
-        st.session_state['calendar_rerun'] = False
+    # if ('calendar_rerun' in st.session_state) or st.session_state['calendar_rerun'] == True:
+    #     st.rerun()
+    #     st.session_state['calendar_rerun'] = False
 
-    user_id = int(st.session_state['user_id'])
-
-    # Initialize calendar events if they don't exist in session state
-    if'calendar_events' not in st.session_state:
-        st.session_state['calendar_events'] = []
-
-    if'habits' not in st.session_state:
-        st.session_state['habits'] = []
-
+    user_id = st.session_state['user_id']
 
     # Custom CSS for styling
     st.markdown(
@@ -158,7 +150,7 @@ def display_habit():
             } for _, row in events.iterrows()]
     
     calendar(events = formatted_events)
-    st.rerun()
+    # st.rerun()
 
 
 
