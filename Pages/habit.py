@@ -5,9 +5,12 @@ from datetime import datetime, timedelta, date
 import mello_functions as mf
 
 def display_habit():
+    
+    if ('calendar_rerun' in st.session_state) or st.session_state['calendar_rerun'] == True:
+        st.rerun()
+        st.session_state['calendar_rerun'] = False
 
     user_id = int(st.session_state['user_id'])
-
 
     # Initialize calendar events if they don't exist in session state
     if'calendar_events' not in st.session_state:
