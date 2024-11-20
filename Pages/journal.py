@@ -13,6 +13,14 @@ from datetime import datetime
 import base64
 import openai
 import re
+from pygame import mixer
+
+def meow():
+    filepath = "assets\cat-meow.mp3"
+
+    mixer.init()
+    mixer.music.load(filepath)
+    mixer.music.play() 
 
 def display_journal():
 
@@ -86,7 +94,8 @@ def display_journal():
                 for index, event in todays_events.iterrows():
                     st.checkbox(label = event["EVENT_TITLE"], key= 'eventcheck_' + str(index))
             else:
-                st.write("No habits created yet")
+                st.write("No habits created")
+                st.info("Head to the Calendar page to create your habits!")
 
             # Create a form submit button
             submit_button = st.form_submit_button("Submit")
@@ -110,11 +119,7 @@ def display_journal():
                             condition_value=event['EVENT_ID']
                         )
               
-              
-              
                 journal_date = datetime.now().date()
-                submitted_container = st.container()
-
 
                 def extract_json(response_content):
                     try:
@@ -172,6 +177,7 @@ def display_journal():
                         
 
                 st.session_state['events_loaded'] = False
+                meow()
                 st.success('Journal Submitted - Head over to Mimi!')
     else:
         st.success("You've already submitted your journal for today!")
