@@ -7,7 +7,6 @@ import base64
 
 def display_home():
     
-
   # Add custom CSS to center the title and change font size
   st.markdown(
       """
@@ -31,8 +30,6 @@ def display_home():
       """, unsafe_allow_html=True
   )
 
- 
-
  # Custom CSS for styling
   st.markdown(
     """
@@ -45,6 +42,7 @@ def display_home():
     .title-image {
         width: 200px;  /* Set the width of the image */
         height: 200px;  /* Set the height of the image */
+        margin-bottom: 30px
     }
     </style>
     """,

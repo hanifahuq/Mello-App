@@ -11,8 +11,8 @@ from datetime import date
 import mello_functions as mf
 from datetime import datetime
 import base64
-
-
+import openai
+import re
 
 def display_journal():
 
@@ -31,16 +31,17 @@ def display_journal():
     if 'user_id' in st.session_state:
         user_id = int(st.session_state['user_id'])
 
-    # Load environment variables from the .env file
+     # Load environment variables from the .env file
     load_dotenv()
 
     # Access the OpenAI API key
-    api_key = os.getenv('API_KEY')
+    openai.api_key = os.getenv('OPENAI_API_KEY')
 
-    if api_key:
-        print(f"API Key loaded successfully!")
+    if openai.api_key:
+        print(f"OpenAI API Key loaded successfully!")
     else:
-        print("Error:API Key not found!")
+        print("Error: OpenAI API Key not found!")
+
     
     # TODO put this into mello functions -- repeated code from habit.py
     # Get all events due for today
@@ -114,48 +115,61 @@ def display_journal():
                 journal_date = datetime.now().date()
                 submitted_container = st.container()
 
-                #with submitted_container:
-                    #st.success('Journal for today submitted!')
-        
-                # Define the API URL
-                url = "https://api.apilayer.com/text_to_emotion"
 
-                # Convert the journal entry to bytes (utf-8 encoded)
-                payload = journal_entry.encode("utf-8")
-
-                # Define headers with API key (replace with your actual API key)
-                headers = {
-                    "apikey": api_key
-                }
-
-                # Make the POST request to the API
-                response = requests.request("POST", url, headers=headers, data=payload)
-
-                # Get the status code of the response
-                status_code = response.status_code
-
-                # Check if the request was successful
-                if status_code == 200:
-                    # Parse the response to a dictionary
-                    result = json.loads(response.text)
-                    st.session_state['emotions'] = result
-
-                    # Extract the emotion scores
-                    angry_score = result.get('Angry', 0.0)
-                    fear_score = result.get('Fear', 0.0)
-                    happy_score = result.get('Happy', 0.0)
-                    sad_score = result.get('Sad', 0.0)
-                    surprise_score = result.get('Surprise', 0.0)
-
+                def extract_json(response_content):
                     try:
-                        # insert journal into journal entries table
-                        mf.insert_data("JOURNAL_ENTRIES", columns = ('user_id', 'date_created', 'entry_text', 'angry', 'fear', 'happy', 'sad', 'surprise'), data = (str(user_id), journal_date, str(journal_entry), angry_score, fear_score, happy_score, sad_score, surprise_score))
-                    except Exception as e:
-                        st.error(f"Error submitting journal entry: {e}")
+                        json_match = re.search(r"\{.*\}", response_content, re.DOTALL)
+                        if json_match:
+                            return json.loads(json_match.group())
+                        else:
+                            raise ValueError("No JSON object found in the response.")
+                    except json.JSONDecodeError as e:
+                        raise ValueError("Invalid JSON format.") from e
 
-                else:
-                    # Print error message if the request failed
-                    print(f"Error: Unable to process the request. Status Code: {status_code}")
+                def analyze_emotions(journal_entry):
+                    messages = [
+                        {
+                            "role": "system",
+                            "content": "You are an assistant that analyzes journal entries. Respond strictly with a JSON object containing percentages for the emotions Angry, Fear, Happy, Sad, Surprise. Ensure the percentages sum to 100%. Do not include any additional text."
+                        },
+                        {
+                            "role": "user",
+                            "content": f"Journal Entry: {journal_entry}"
+                        }
+                    ]
+                    
+                    response = openai.ChatCompletion.create(
+                        model="gpt-4o-mini",
+                        messages=messages,
+                        max_tokens=150,
+                        temperature=0
+                    )
+                    
+                    raw_content = response['choices'][0]['message']['content']
+                    print("Raw Response:", raw_content)  # Debugging step
+                    return extract_json(raw_content)
+
+
+                emotions = analyze_emotions(journal_entry)
+
+                result = emotions
+            
+                st.session_state['emotions'] = result
+
+                # # Extract the emotion scores
+                angry_score = result.get('Angry', 0.0)
+                fear_score = result.get('Fear', 0.0)
+                happy_score = result.get('Happy', 0.0)
+                sad_score = result.get('Sad', 0.0)
+                surprise_score = result.get('Surprise', 0.0)
+
+                try:
+                    # insert journal into journal entries table
+                    mf.insert_data("JOURNAL_ENTRIES", columns = ('user_id', 'date_created', 'entry_text', 'angry', 'fear', 'happy', 'sad', 'surprise'), data = (str(user_id), journal_date, str(journal_entry), angry_score, fear_score, happy_score, sad_score, surprise_score))
+                except Exception as e:
+                    st.error(f"Error submitting journal entry: {e}")
+
+                        
 
                 st.session_state['events_loaded'] = False
                 st.success('Journal Submitted - Head over to Mimi!')
