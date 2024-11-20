@@ -2,6 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import streamlit as st
 from datetime import datetime
+from PIL import Image
+import base64
 
 def display_home():
     
@@ -10,9 +12,15 @@ def display_home():
   st.markdown(
       """
       <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
       .title {
           text-align: center;
           font-size: 200px;  /* Increased font size for the title */
+          font-family: 'Pacifico', cursive;
+          font-weight: 550;
+          font-style: normal;
+          margin-bottom: 20px; /* Optional: Add space below the title */
       }
       blockquote {
           font-size: 40px;  /* Increased font size for the quote */
@@ -23,8 +31,46 @@ def display_home():
       """, unsafe_allow_html=True
   )
 
+ 
+
+ # Custom CSS for styling
+  st.markdown(
+    """
+    <style>
+    .title-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;  /* Vertically align items in the center */
+    }
+    .title-image {
+        width: 200px;  /* Set the width of the image */
+        height: 200px;  /* Set the height of the image */
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+  )
+  
+ # Encode the image in base64
+  with open("assets/mimi-icons/flower-mimi.png", "rb") as file:
+      image_base64 = base64.b64encode(file.read()).decode()
+  
+    # Embed the HTML structure with the image in base64
+  st.markdown(
+    f"""
+    <div class="title-container">
+        <img class="title-image" src = "data:image/png;base64,{image_base64}">
+        <h1 class="title">Mello</h1>
+        <img class="title-image" src="data:image/png;base64,{image_base64}">
+    </div>
+    """,
+    unsafe_allow_html=True
+  )
+
+
+
   # Use the class to center the title
-  st.markdown('<h1 class="title">😺 Mello 😺</h1>', unsafe_allow_html=True)
+  #st.markdown('<h1 class="title">😺 Mello 😺</h1>', unsafe_allow_html=True)
 
 
  # Function to fetch the quote
