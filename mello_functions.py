@@ -316,10 +316,37 @@ def check_login():
     else: return False
 
 
-# Hash a password
-def hash_password(password):
-    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+# # Hash a password
+# def hash_password(password) -> str:
+#     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+#     print('SHOULD BE BYTE: ', type(hashed_password))
+#     hashed_password_base64 = base64.b64encode(hashed_password).decode('utf-8')
+#     print('SHOULD BE STR:', type(hashed_password_base64))
 
-# Verify a password
-def verify_password(password, hashed_password):
-    return bcrypt.checkpw(password.encode('utf-8'), hashed_password)
+#     try:
+#         base64.b64decode(hashed_password_base64)
+#         print('IS IN BASE64')
+#     except Exception:
+#         print('IS --NOT-- IN BASE64')
+    
+#     return hashed_password_base64
+
+def hash_password(password):
+    password_hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    return password_hashed
+
+def verify_password(entered_password, stored_hash_password):
+    is_correct = bcrypt.checkpw(entered_password.encode(), stored_hash_password.encode())
+    return is_correct
+
+# # Verify a password
+# def verify_password(password, hashed_password_base64: str) -> bool:
+#     try:
+#         # Decode the base64-encoded hashed password
+#         decoded_password = base64.b64decode(hashed_password_base64)
+        
+#         # Verify the password using bcrypt
+#         return bcrypt.checkpw(password.encode('utf-8'), decoded_password)
+#     except Exception as e:
+#         print(f"Error during password verification: {e}")
+#         return False
