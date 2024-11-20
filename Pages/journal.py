@@ -16,6 +16,9 @@ import base64
 
 def display_journal():
 
+    # Add page title
+    mf.page_title("Journal", "assets\mimi-icons\journal-mimi.png")
+
     if'journal_text' not in st.session_state:
         st.session_state['journal_text'] = ''
 
@@ -52,58 +55,7 @@ def display_journal():
         events = st.session_state['events']
 
     todays_events = events[events['ASSIGNED_DATE'] == datetime.today().date()]
-
-# Inject custom CSS for Google Font
-
-    # Custom CSS for styling
-    st.markdown(
-    """
-    <style>
-    .title-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;  /* Vertically align items in the center */
-    }
-    .title-image {
-        width: 200px;  /* Set the width of the image */
-        height: 200px;  /* Set the height of the image */
-    }
-    /* Import DM Serif Display from Google Fonts */
-    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital,wght@0,400;1,400&display=swap');
     
-    /* Apply the font globally */
-    html, body, [class*="css"]  {
-        font-family: 'DM Serif Display', serif;
-    }
-
-    /* Example: Apply font with specific styles */
-    .dm-serif-display-regular {
-        font-family: 'DM Serif Display', serif;
-        font-weight: 550;
-        font-style: normal;
-        font-size: 150px;
-    }
-
-    </style>
-    """,
-    unsafe_allow_html=True
-  )
-    
-    # Encode the image in base64
-    with open("assets/mimi-icons/journal-mimi.png", "rb") as file:
-        image_base64 = base64.b64encode(file.read()).decode()
-    
-        # Embed the HTML structure with the image in base64
-    st.markdown(
-        f"""
-        <div class="title-container">
-            <img class="title-image" src = "data:image/png;base64,{image_base64}">
-            <h1 class="dm-serif-display-regular">Journal</h1>
-            <img class="title-image" src="data:image/png;base64,{image_base64}">
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
 
     # Example prompts for the user
     example_questions = """Here are some prompts to help you get started
@@ -116,8 +68,6 @@ def display_journal():
     
     Feel free to express yourself freely and reflect on your emotions and experiences.
     """
-   
-
 
     # Create journal entry form to add to table
     if not st.session_state['submitted']:

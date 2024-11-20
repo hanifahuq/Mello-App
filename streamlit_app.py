@@ -28,34 +28,47 @@ def set_session_user(username):
     st.rerun()
 
 
+# Inject custom CSS for Google Fonts
 st.markdown(
-        """
-        <style>
-        .title {
-          text-align: center;
-          font-size: 80px;  /* Increased font size for the title */
-          font-weight: 550;
-          font-style: normal;
-          margin-bottom: 20px; /* Optional: Add space below the title */
+    """
+    <style>
+        /* Import DM Serif Display and Pacifico from Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Pacifico&display=swap');
+
+        /* Apply font classes */
+        .dm-serif-display {
+            font-family: 'DM Serif Display', serif;
         }
-        </style>
-        """, unsafe_allow_html=True
-        )
+
+        .pacifico {
+            font-family: 'Pacifico', cursive;
+        }
+
+        /* Center text styling for demonstration */
+        .center-text {
+            text-align: center;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
     
 
 # User authentication
 if 'username' not in st.session_state:
     
+    # App content with styled text
     st.markdown(
-        f"""
-        <div>
-            <h1 class="title">Welcome to Mello</h1>
+        """
+        <div class="center-text">
+            <span class="dm-serif-display" style="font-size: 100px; font-weight: 600">Welcome to </span>
+            <span class="pacifico" style="font-size: 100px;">Mello</span>
         </div>
         """,
         unsafe_allow_html=True
     )
 
-        # Create a layout with columns
+    # Create a layout with columns
     col1, col2, col3 = st.columns(3)
     
     with col2:
@@ -119,7 +132,6 @@ if 'username' not in st.session_state:
                           
 else:
     page_container = st.container()
-
 
     selected = option_menu(
         None,
