@@ -217,18 +217,10 @@ def display_mimi():
                                 except Exception as e:
                                     st.error(f"Error submitting event entry: {e}")
 
-                                st.session_state['events_loaded'] == False
-                            
+                                st.session_state['events_loaded'] = False
+                                st.session_state['calendar_rerun'] = True
 
-                # Extract all events
-                if ('events_loaded' not in st.session_state) or (st.session_state['events_loaded'] == False):
-                    events = mf.query_select("events", columns = ("event_id", "event_title", "assigned_date", "completed"))
-                # Cache the grouped events and mark as loaded
-                    st.session_state['events'] = events
-                    st.session_state['events_loaded'] = True
-                else:
-                    # Retrieve cached grouped events
-                    events = st.session_state['events']
+            
 
                     
                     # User input field
