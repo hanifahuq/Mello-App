@@ -3,12 +3,16 @@ from streamlit_option_menu import option_menu
 import mello_functions as mf
 import pandas as pd
 
+
 from pages.home import display_home
 from pages.journal import display_journal
 from pages.mimi import display_mimi
 from pages.habit import display_habit
 from pages.dashboard import display_dashboard
 from pages.about import display_about
+
+st.session_state['user_id'] = 1
+st.session_state['username'] = 'wadad'
 
 # Set the page configuration to wide layout
 st.set_page_config(layout="wide", initial_sidebar_state="collapsed")

@@ -276,8 +276,9 @@ def page_title(title:str, img_path):
             align-items: center;  /* Vertically align items in the center */
         }
         .title-image {
-        width: 200px;  /* Set the width of the image */
-        height: 200px;  /* Set the height of the image */
+        width: 120px;  /* Set the width of the image */
+        height: 120px;  /* Set the height of the image */
+        margin-bottom: 30px; /* Set the margin for soe white space */
         }
         </style>
         """,
