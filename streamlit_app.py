@@ -14,8 +14,8 @@ from pages.about import display_about
 st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
 
 def check_user_exists(username):
-    table = mf.query_select("user_accounts", username = username, columns = ("user_id"))
-    return len(table) > 0
+    table = mf.query_select("user_accounts", username = username, columns = ("user_id", 'password_hash'))
+    return table if len(table) > 0 else None
 
 def set_session_user(username):
 
@@ -65,17 +65,25 @@ if 'username' not in st.session_state:
         username = st.text_input("Username").lower()
 
         if login_create == login_create_options[0]:
+            password = st.text_input("Password", type='password')
             login_button = st.button("Login")
-            if login_button:
-                if check_user_exists(username):
-                    st.success("Success! Logging in...")
-                    set_session_user(username)
-                    # show_user_access()
 
+            if login_button:
+                user_data = check_user_exists(username)
+                if user_data:
+                    stored_hashed_password = user_data[0]['password']
+                    if mf.verify_password(password, stored_hashed_password):
+                        st.success("Success! Logging in...")
+                        set_session_user(username)
+                    else:
+                        st.error("Invalid password")
+        
                 else:
                     st.error("Username does not exist")
         else:
             name = st.text_input("Name")
+            password = st.text_input("Password", type="password")
+            confirm_password = st.text_input("Confirm Password", type='password')
             data_permission = st.checkbox("I comply with the terms and conditions")
 
             with open("assets/txt-files/Terms and Conditions.txt", "r", encoding="utf-8") as file:
@@ -88,30 +96,29 @@ if 'username' not in st.session_state:
             create_account_button = st.button("Create Account")
 
             if create_account_button:
-                if data_permission:
-                    if check_user_exists(username):
-                        st.error("Username already exists, try logging in")
-                    else:
-                        st.success("Account created! Logging in...")
-                        
-                        try:
+                if not data_permission:
+                    st.error("Please accept our terms and conditions to make an account.")
+                elif password != confirm_password:
+                    st.error("Passwords do not match")
+                elif check_user_exists(username):
+                    st.error("Username already exists, try logging in")
+                else:
+                    mf.hashed_password = mf.hash_password(password) 
+                    print((username, mf.hashed_password.decode("utf-8"), name, data_permission))
+                    print(len((username, mf.hashed_password.decode("utf-8"), name, data_permission)))
+                    try:
                             # create_user(username, name, data_permission)
-                            mf.insert_data("user_accounts", columns = ('username', 'name', 'data_permission'), data = (username, name, data_permission))
+                            mf.insert_data("user_accounts", columns = ('username','password_hash', 'name', 'data_permission'), data = (username, mf.hashed_password.decode("utf-8"), name, data_permission))
+
+                            st.success("Account created! Logging in...")
                             set_session_user(username)
 
-                        except Exception as e:
+                    except Exception as e:
                             st.error("Error creating account. Contact developers.")
                             print(e)
-            
-                else:
-                    st.error("Please accept our terms and conditions to make an account")
+                          
 else:
     page_container = st.container()
-
-
-
-
-
 
 
     selected = option_menu(
