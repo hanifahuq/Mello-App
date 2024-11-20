@@ -13,10 +13,6 @@ from pages.about import display_about
 # Set the page configuration to wide layout
 st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
 
-def check_user_exists(username):
-    table = mf.query_select("user_accounts", username = username, columns = ("user_id", 'password_hash'))
-    return table if len(table) > 0 else None
-
 def set_session_user(username):
 
     user_info = mf.query_select("user_accounts", username = username, columns = ("name", "user_id"))
@@ -27,6 +23,12 @@ def set_session_user(username):
 
     st.rerun()
 
+def get_user(username, check_exists = True):
+    user_details = mf.query_select("user_accounts", username=username, columns=("user_id", "username", "name", "password_hash"))
+    if check_exists:
+        return user_details, len(user_details) > 0
+    else:
+        return user_details
 
 # Inject custom CSS for Google Fonts
 st.markdown(
@@ -52,7 +54,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-    
 
 # User authentication
 if 'username' not in st.session_state:
@@ -78,22 +79,34 @@ if 'username' not in st.session_state:
         username = st.text_input("Username").lower()
 
         if login_create == login_create_options[0]:
+
+            # Setting up the form layout
             password = st.text_input("Password", type='password')
             login_button = st.button("Login")
 
             if login_button:
-                user_data = check_user_exists(username)
-                if user_data:
-                    stored_hashed_password = user_data[0]['password']
-                    if mf.verify_password(password, stored_hashed_password):
+                
+                # Get user details and whether the user exists
+                user_details, user_exists = get_user(username, check_exists= True)
+                stored_hash = user_details['PASSWORD_HASH'][0]
+
+                if user_exists:
+                    # Verify login details
+                    correct_password = mf.verify_password(password, stored_hash)
+
+                    if correct_password:
+
                         st.success("Success! Logging in...")
                         set_session_user(username)
+
                     else:
-                        st.error("Invalid password")
-        
+                        "Incorrect password. Try again"
                 else:
-                    st.error("Username does not exist")
+                    st.error("User does not exist, create an account")
+            
         else:
+
+            # Set up form layout
             name = st.text_input("Name")
             password = st.text_input("Password", type="password")
             confirm_password = st.text_input("Confirm Password", type='password')
@@ -109,27 +122,21 @@ if 'username' not in st.session_state:
             create_account_button = st.button("Create Account")
 
             if create_account_button:
+                # Has the individual given permission?
                 if not data_permission:
                     st.error("Please accept our terms and conditions to make an account.")
-                elif password != confirm_password:
-                    st.error("Passwords do not match")
-                elif check_user_exists(username):
-                    st.error("Username already exists, try logging in")
                 else:
-                    mf.hashed_password = mf.hash_password(password) 
-                    print((username, mf.hashed_password.decode("utf-8"), name, data_permission))
-                    print(len((username, mf.hashed_password.decode("utf-8"), name, data_permission)))
-                    try:
-                            # create_user(username, name, data_permission)
-                            mf.insert_data("user_accounts", columns = ('username','password_hash', 'name', 'data_permission'), data = (username, mf.hashed_password.decode("utf-8"), name, data_permission))
+                    if password != confirm_password:
+                        st.error("Passwords do not match")
+                    else:
+                        # insert the user details
+                        hashed = mf.hash_password(password)
+                        mf.insert_data("user_accounts", columns = ('USERNAME', 'NAME', 'DATA_PERMISSION', 'PASSWORD_HASH'), data = (username, name, data_permission, hashed))
 
-                            st.success("Account created! Logging in...")
-                            set_session_user(username)
+                        st.success("Account created! Logging in...")
 
-                    except Exception as e:
-                            st.error("Error creating account. Contact developers.")
-                            print(e)
-                          
+                        set_session_user(username)
+
 else:
     page_container = st.container()
 
@@ -159,4 +166,3 @@ else:
     elif selected == "About":
         with page_container:
             display_about()
-
