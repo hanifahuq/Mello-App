@@ -3,6 +3,7 @@ from streamlit_calendar import calendar
 import pandas as pd
 from datetime import datetime, timedelta, date
 import mello_functions as mf
+import base64
 
 def display_habit():
 
@@ -16,7 +17,53 @@ def display_habit():
     if'habits' not in st.session_state:
         st.session_state['habits'] = []
 
-    st.title("Create a new habit")
+
+    # Custom CSS for styling
+    st.markdown(
+        """
+        <style>
+        .title-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;  /* Vertically align items in the center */
+        }
+        .title-image {
+            width: 200px;  /* Set the width of the image */
+            height: 200px;  /* Set the height of the image */
+        }
+        .title {
+          text-align: center;
+          font-size: 100px;  /* Increased font size for the title */
+          font-weight: 550;
+          font-style: normal;
+          margin-bottom: 20px; /* Optional: Add space below the title */
+      }
+
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Encode the image in base64
+    with open("assets/mimi-icons/habit-mimi.png", "rb") as file:
+        image_base64 = base64.b64encode(file.read()).decode()
+    
+        # Embed the HTML structure with the image in base64
+    st.markdown(
+        f"""
+        <div class="title-container">
+            <img class="title-image" src = "data:image/png;base64,{image_base64}">
+            <h1 class="title">Calendar</h1>
+            <img class="title-image" src="data:image/png;base64,{image_base64}">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    st.subheader("Create a new habit")
+
+
 
     habit_regularity = [
         "Daily", 
@@ -108,6 +155,7 @@ def display_habit():
             } for _, row in events.iterrows()]
     
     calendar(events = formatted_events)
+    st.rerun()
 
 
 

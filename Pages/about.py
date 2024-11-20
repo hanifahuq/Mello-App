@@ -1,4 +1,5 @@
 import streamlit as st
+import base64
 
 
 def display_about():
@@ -8,20 +9,41 @@ def display_about():
         """
         <style>
         .title {
-            text-align: center;
-            font-size: 50px;  /* Increased font size for the title */
+          text-align: center;
+          font-size: 100px;  /* Increased font size for the title */
+          font-weight: 550;
+          font-style: normal;
+          margin-bottom: 20px; /* Optional: Add space below the title */
         }
-        blockquote {
-            font-size: 28px;  /* Increased font size for the quote */
-            padding: 20px;
-            line-height: 1.6; /* Adjust line height for better readability */
+        .title-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;  /* Vertically align items in the center */
+        }
+        .title-image {
+        width: 200px;  /* Set the width of the image */
+        height: 200px;  /* Set the height of the image */
         }
         </style>
         """, unsafe_allow_html=True
+        )
+
+    # Encode the image in base64
+    with open("assets/mimi-icons/about-mimi.png", "rb") as file:
+        image_base64 = base64.b64encode(file.read()).decode()
+    
+        # Embed the HTML structure with the image in base64
+    st.markdown(
+        f"""
+        <div class="title-container">
+            <img class="title-image" src = "data:image/png;base64,{image_base64}">
+            <h1 class="title">About</h1>
+            <img class="title-image" src="data:image/png;base64,{image_base64}">
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
-    # Use the class to center the title
-    st.markdown('<h1 class="title">About Mello</h1>', unsafe_allow_html=True)
 
     st.markdown("""
         <div style="text-align: center;">
