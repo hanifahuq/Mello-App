@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import pandas as pd
 import os
 import base64
+import bcrypt
 
 
 def get_db_connection():
@@ -313,3 +314,12 @@ def check_login():
     if 'username' in st.session_state:
         return True
     else: return False
+
+
+# Hash a password
+def hash_password(password):
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+# Verify a password
+def verify_password(password, hashed_password):
+    return bcrypt.checkpw(password.encode('utf-8'), hashed_password)
