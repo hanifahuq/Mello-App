@@ -122,11 +122,13 @@ def display_journal():
                                         value=st.session_state.get('journal_text', ''),
                                         height=250,
                                         placeholder=example_questions)
-            
-            st.subheader('To do:')
-
-            for index, event in todays_events.iterrows():
-                 st.checkbox(label = event["EVENT_TITLE"], key= 'eventcheck_' + str(index))
+       
+            st.subheader("To Do:")
+            if not todays_events.empty:
+                for index, event in todays_events.iterrows():
+                    st.checkbox(label = event["EVENT_TITLE"], key= 'eventcheck_' + str(index))
+            else:
+                st.write("No habits created yet")
 
             # Create a form submit button
             submit_button = st.form_submit_button("Submit")
@@ -198,6 +200,7 @@ def display_journal():
                     # Print error message if the request failed
                     print(f"Error: Unable to process the request. Status Code: {status_code}")
 
+                st.session_state['calendar_rerun'] = True
                 st.success('Journal Submitted - Head over to Mimi!')
     else:
         st.success("You've already submitted your journal for today!")
