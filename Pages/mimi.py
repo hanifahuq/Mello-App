@@ -4,10 +4,15 @@ import os
 from dotenv import load_dotenv
 from datetime import date, datetime
 import random
+import base64
+import mello_functions as mf
+from streamlit_calendar import calendar
 
 
 
 def display_mimi():
+
+    user_id = int(st.session_state['user_id'])
     
     # Load environment variables from the .env file
     load_dotenv()
@@ -39,6 +44,7 @@ def display_mimi():
 
     if'user_input' not in st.session_state:
         st.session_state['user_input'] = ''
+
 
 
     # Function to send the prompt and get a CBT-specific response
@@ -97,15 +103,6 @@ def display_mimi():
         {"title": "Plan your goals for tomorrow", "description": "Write down a few goals or priorities to set yourself up for a productive day."}
     ]
 
-   # Function to add an event to the calendar
-    def add_event_to_calendar(event_title, event_date, event_time):
-        event_datetime = datetime.combine(event_date, event_time)
-        st.session_state['calendar_events'].append({
-            'title': event_title,
-            'datetime' : event_datetime.isoformat()
-        })
-        st.success(f"Event '{event_title}' has been scheduled for {event_datetime.strftime('%Y-%m-%d %H:%M')}")
-
     
     # Streamlit app interface
     # Add custom CSS to center the title and change font size
@@ -113,20 +110,42 @@ def display_mimi():
         """
         <style>
         .title {
-            text-align: center;
-            font-size: 50px;  /* Increased font size for the title */
+          text-align: center;
+          font-size: 100px;  /* Increased font size for the title */
+          font-weight: 550;
+          font-style: normal;
+          margin-bottom: 20px; /* Optional: Add space below the title */
         }
-        blockquote {
-            font-size: 28px;  /* Increased font size for the quote */
-            padding: 20px;
-            line-height: 1.6; /* Adjust line height for better readability */
+        .title-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;  /* Vertically align items in the center */
+        }
+        .title-image {
+        width: 200px;  /* Set the width of the image */
+        height: 200px;  /* Set the height of the image */
         }
         </style>
         """, unsafe_allow_html=True
+        )
+    
+
+     # Encode the image in base64
+    with open("assets/mimi-icons/mimi-mimi.png", "rb") as file:
+        image_base64 = base64.b64encode(file.read()).decode()
+    
+        # Embed the HTML structure with the image in base64
+    st.markdown(
+        f"""
+        <div class="title-container">
+            <img class="title-image" src = "data:image/png;base64,{image_base64}">
+            <h1 class="title">Mimi</h1>
+            <img class="title-image" src="data:image/png;base64,{image_base64}">
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
-    # Use the class to center the title
-    st.markdown('<h1 class="title"> 🐱 Mimi 🐱</h1>', unsafe_allow_html=True)
 
     st.write("Mimi provides guidance based on Cognitive Behavioral Therapy (CBT) techniques.")
 
@@ -188,13 +207,29 @@ def display_mimi():
                             # Date input for scheduling the event
                             event_date = st.date_input(f"Select a date for {event['title']}'",min_value=datetime.now().date(), key=f"date_{idx}")
 
-                            # Time input for scheduling event
-                            event_time = st.time_input("Select a time for '{event['title']}'", key=f"time_{idx}")
-
-
                             if st.button(f"Add '{event['title']}' to calendar", key=f"button_{idx}"):
-                                add_event_to_calendar(event['title'], event_date, event_time)
-                
+                                st.success('Event added to Calendar')
+
+
+                                try:
+                                    # insert journal into journal entries table
+                                    mf.insert_data("EVENTS", columns = ('user_id', 'event_title', 'assigned_date'), data = (str(user_id), event['title'], event_date))
+                                except Exception as e:
+                                    st.error(f"Error submitting event entry: {e}")
+
+                                st.session_state['events_loaded'] == False
+                            
+
+                # Extract all events
+                if ('events_loaded' not in st.session_state) or (st.session_state['events_loaded'] == False):
+                    events = mf.query_select("events", columns = ("event_id", "event_title", "assigned_date", "completed"))
+                # Cache the grouped events and mark as loaded
+                    st.session_state['events'] = events
+                    st.session_state['events_loaded'] = True
+                else:
+                    # Retrieve cached grouped events
+                    events = st.session_state['events']
+
                     
                     # User input field
                 with st.form(key='chat_form', clear_on_submit=True):

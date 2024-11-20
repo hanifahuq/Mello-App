@@ -10,6 +10,9 @@ from dotenv import load_dotenv
 from datetime import date
 import mello_functions as mf
 from datetime import datetime
+import base64
+
+
 
 def display_journal():
 
@@ -50,8 +53,49 @@ def display_journal():
 
     todays_events = events[events['ASSIGNED_DATE'] == datetime.today().date()]
 
-    # Add header
-    st.title("How was your day?")
+
+    # Custom CSS for styling
+    st.markdown(
+    """
+    <style>
+    .title-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;  /* Vertically align items in the center */
+    }
+    .title-image {
+        width: 200px;  /* Set the width of the image */
+        height: 200px;  /* Set the height of the image */
+    }
+    .title {
+          text-align: center;
+          font-size: 100px;  /* Increased font size for the title */
+          font-weight: 550;
+          font-style: normal;
+          margin-bottom: 20px; /* Optional: Add space below the title */
+      }
+
+    </style>
+    """,
+    unsafe_allow_html=True
+  )
+    
+    # Encode the image in base64
+    with open("assets/mimi-icons/journal-mimi.png", "rb") as file:
+        image_base64 = base64.b64encode(file.read()).decode()
+    
+        # Embed the HTML structure with the image in base64
+    st.markdown(
+        f"""
+        <div class="title-container">
+            <img class="title-image" src = "data:image/png;base64,{image_base64}">
+            <h1 class="title">Journal</h1>
+            <img class="title-image" src="data:image/png;base64,{image_base64}">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
 
     
     # Example prompts for the user
@@ -76,10 +120,10 @@ def display_journal():
             # Journal entry
             journal_entry = st.text_area("How was your day? (Feel free to reflect on any thoughts or emotions you had today)",
                                         value=st.session_state.get('journal_text', ''),
-                                        height=150,
+                                        height=250,
                                         placeholder=example_questions)
-            
-            st.write("**Todays Habits**")
+       
+            st.subheader("To Do:")
             if not todays_events.empty:
                 for index, event in todays_events.iterrows():
                     st.checkbox(label = event["EVENT_TITLE"], key= 'eventcheck_' + str(index))
@@ -113,8 +157,8 @@ def display_journal():
                 journal_date = datetime.now().date()
                 submitted_container = st.container()
 
-                with submitted_container:
-                    st.success('Journal for today submitted!')
+                #with submitted_container:
+                    #st.success('Journal for today submitted!')
         
                 # Define the API URL
                 url = "https://api.apilayer.com/text_to_emotion"
@@ -157,8 +201,7 @@ def display_journal():
                     print(f"Error: Unable to process the request. Status Code: {status_code}")
 
                 st.session_state['calendar_rerun'] = True
-                
-                st.success('Head over to Mimi!')
+                st.success('Journal Submitted - Head over to Mimi!')
     else:
         st.success("You've already submitted your journal for today!")
 
