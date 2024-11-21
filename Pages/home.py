@@ -57,15 +57,13 @@ def display_home():
   st.markdown(
     f"""
     <div class="title-container">
-        <img class="title-image" src = "data:image/png;base64,{image_base64}">
+        <img class="title-image" style = "margin-right: 30px"src = "data:image/png;base64,{image_base64}">
         <h1 class="title">Mello</h1>
-        <img class="title-image" src="data:image/png;base64,{image_base64}">
+        <img class="title-image" style = "margin-left: 30px" src="data:image/png;base64,{image_base64}">
     </div>
     """,
     unsafe_allow_html=True
   )
-
-
 
   # Use the class to center the title
   #st.markdown('<h1 class="title">😺 Mello 😺</h1>', unsafe_allow_html=True)
