@@ -237,12 +237,10 @@ def update_data(table_name: str, column_to_update: str, new_value: bool, conditi
         cursor.close()
         conn.close()
 
-def import_html_img(path):
+def import_html_media(media_path: str):
     # Encode the image in base64
-    with open(path, "rb") as file:
-        image_base64 = base64.b64encode(file.read()).decode()
-
-    return image_base64
+    with open(media_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
 
 def page_title(title:str, img_path):
     # Add custom CSS to center the title and change font size
@@ -287,7 +285,7 @@ def page_title(title:str, img_path):
     
     # Get title image
     # Encode the image in base64
-    title_image = import_html_img(img_path)
+    title_image = import_html_media(img_path)
     
     # Embed the HTML structure with the image in base64
     st.markdown(
