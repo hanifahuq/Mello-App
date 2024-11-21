@@ -177,7 +177,7 @@ def display_mimi():
 
 
                     
-                    # User input field
+                # User input field
                 with st.form(key='chat_form', clear_on_submit=True):
                     user_input = st.text_input("How can I help you today?", value=st.session_state['user_input'], max_chars=500)
                     submit_button = st.form_submit_button('Send')
