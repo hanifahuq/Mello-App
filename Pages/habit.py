@@ -7,7 +7,7 @@ import base64
 
 def display_habit():
 
-    user_id = st.session_state['user_id']
+    user_id = int(st.session_state['user_id'])
     
     # Insert page title
     mf.page_title("Calendar", "assets\mimi-icons\habit-mimi.png")
