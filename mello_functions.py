@@ -299,37 +299,6 @@ def page_title(title:str, img_path):
         unsafe_allow_html=True
     )
 
-def check_login():
-    """
-    Checks if user has logged in to the session
-
-    Params:
-        None
-    
-    Returns:
-        Bool
-    """
-
-    if 'username' in st.session_state:
-        return True
-    else: return False
-
-
-# # Hash a password
-# def hash_password(password) -> str:
-#     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-#     print('SHOULD BE BYTE: ', type(hashed_password))
-#     hashed_password_base64 = base64.b64encode(hashed_password).decode('utf-8')
-#     print('SHOULD BE STR:', type(hashed_password_base64))
-
-#     try:
-#         base64.b64decode(hashed_password_base64)
-#         print('IS IN BASE64')
-#     except Exception:
-#         print('IS --NOT-- IN BASE64')
-    
-#     return hashed_password_base64
-
 def hash_password(password):
     password_hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
     return password_hashed
@@ -338,14 +307,147 @@ def verify_password(entered_password, stored_hash_password):
     is_correct = bcrypt.checkpw(entered_password.encode(), stored_hash_password.encode())
     return is_correct
 
-# # Verify a password
-# def verify_password(password, hashed_password_base64: str) -> bool:
-#     try:
-#         # Decode the base64-encoded hashed password
-#         decoded_password = base64.b64decode(hashed_password_base64)
-        
-#         # Verify the password using bcrypt
-#         return bcrypt.checkpw(password.encode('utf-8'), decoded_password)
-#     except Exception as e:
-#         print(f"Error during password verification: {e}")
-#         return False
+def kpi_card(img_path, top_emotion: str, percent_value):
+    
+    # Encoding image as base64 (for demonstration purpose)
+    encoded_icon = import_html_media(img_path)
+
+    # Inject custom CSS for Google Fonts
+    st.markdown(
+        """
+        <style>
+            /* Import DM Serif Display and Pacifico from Google Fonts */
+            @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Pacifico&display=swap');
+
+            /* Apply font classes */
+            .dm-serif-display {
+                font-family: 'DM Serif Display', serif;
+            }
+
+            .pacifico {
+                font-family: 'Pacifico', cursive;
+            }
+
+            /* Center text styling for demonstration */
+            .center-text {
+                text-align: center;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # HTML and CSS content to render in Streamlit
+    st.markdown(
+        f"""
+        <style>
+        /* Flexbox container to center content */
+        .flex-container {{
+            display: flex;
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            width: 100%;
+            height: auto; /* Adjust height if needed */
+        }}
+
+        .card {{
+            cursor: pointer;
+            width: 380px;
+            height: 150px;
+            background: rgb(255, 255, 255);
+            border-radius: 15px;
+            border: 2px solid rgba(0, 0, 255, .2);
+            transition: all .2s;
+            box-shadow: 12px 12px 2px 1px rgba(0, 0, 255, .2);
+            display: flex;
+            align-items: center; /* Align vertically */
+            justify-content: flex-start; /* Align items to the left */
+            padding: 10px;
+            text-align: left;
+            font-family: Arial, sans-serif;
+            color: rgb(50, 50, 50);
+            margin: 20px;
+        }}
+
+        .card:hover {{
+            box-shadow: -12px 12px 2px -1px rgba(0, 0, 255, .2);
+        }}
+
+        .card img {{
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            margin-right: 20px;
+            margin-left: 20px;
+        }}
+
+        .card .subtitle {{
+            font-size: 20px;
+            font-family: 'DM Serif Display', serif;
+            font-weight: 600;
+            margin-top: 7px;
+        }}
+
+        .card .emotion {{
+            font-size: 30px;
+            font-family: 'Pacifico', cursive;
+            margin-bottom: -5px;
+        }}
+
+        .card .percentage {{
+            font-size: 50px;
+            font-family: 'DM Serif Display', serif;
+            font-weight: 600;
+        }}
+        </style>
+
+        <!-- Flexbox container wrapping the card -->
+        <div class="flex-container">
+            <div class="card">
+                <img src="data:image/png;base64,{encoded_icon}">
+                <div>
+                    <div class="subtitle">{top_emotion}</div>
+                    <div class="percentage">{percent_value}</div>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+def html_graph(image_base64, title=""):
+    """
+    Generates HTML content for displaying an image in Streamlit.
+
+    Args:
+    image_base64 (str): Base64 encoded image of the plot.
+    title (str): Title of the HTML container.
+    
+    Returns:
+    None
+    """
+    html_content = f"""
+    <div style="
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 60vh;
+        background: transparent;">
+        <div style="
+            border: 2px solid rgba(0, 0, 255, .2);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            background-color: #ffffff;
+            width: 85%;
+            box-shadow: 12px 12px 2px 1px rgba(0, 0, 255, .2);
+            margin-bottom: 40px;">
+            <img src="data:image/png;base64,{image_base64}" alt="{title}" style="width: 100%; border-radius: 10px;"/>
+        </div>
+    </div>
+    """
+    st.markdown(html_content, unsafe_allow_html=True)
+
+def mimicon_path(state:str):
+    return f"assets\mimi-icons\{state.lower()}-mimi.png"
