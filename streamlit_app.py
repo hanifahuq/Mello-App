@@ -18,7 +18,7 @@ def set_session_user(username):
 
     user_info = mf.query_select("user_accounts", username = username, columns = ("name", "user_id"))
 
-    st.session_state['username'] = username[0]
+    st.session_state['username'] = username#[0]
     st.session_state['user_id'] = user_info['user_id'.upper()][0]
     st.session_state['name'] = user_info['name'.upper()][0]
 
@@ -60,7 +60,7 @@ st.markdown(
 if 'username' not in st.session_state:
     
     # Add changing mimi gif at the top
-    changing_mimi = mf.img_to_base64("assets\changing-mimi.gif")
+    changing_mimi = mf.import_html_media("assets\changing-mimi.gif")
     st.markdown(
                     f"""
                     <div style="display: flex; justify-content: center; align-items: center; height: 400px;">

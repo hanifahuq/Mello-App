@@ -5,7 +5,12 @@ import pandas as pd
 import os
 import base64
 import bcrypt
-
+import json 
+import re
+import openai
+from pygame import mixer
+import requests
+from bs4 import BeautifulSoup
 
 def get_db_connection():
 
@@ -299,37 +304,6 @@ def page_title(title:str, img_path):
         unsafe_allow_html=True
     )
 
-def check_login():
-    """
-    Checks if user has logged in to the session
-
-    Params:
-        None
-    
-    Returns:
-        Bool
-    """
-
-    if 'username' in st.session_state:
-        return True
-    else: return False
-
-
-# # Hash a password
-# def hash_password(password) -> str:
-#     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-#     print('SHOULD BE BYTE: ', type(hashed_password))
-#     hashed_password_base64 = base64.b64encode(hashed_password).decode('utf-8')
-#     print('SHOULD BE STR:', type(hashed_password_base64))
-
-#     try:
-#         base64.b64decode(hashed_password_base64)
-#         print('IS IN BASE64')
-#     except Exception:
-#         print('IS --NOT-- IN BASE64')
-    
-#     return hashed_password_base64
-
 def hash_password(password):
     password_hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
     return password_hashed
@@ -338,14 +312,340 @@ def verify_password(entered_password, stored_hash_password):
     is_correct = bcrypt.checkpw(entered_password.encode(), stored_hash_password.encode())
     return is_correct
 
-# # Verify a password
-# def verify_password(password, hashed_password_base64: str) -> bool:
-#     try:
-#         # Decode the base64-encoded hashed password
-#         decoded_password = base64.b64decode(hashed_password_base64)
+def kpi_card(img_path, top_emotion: str, percent_value):
+    
+    # Encoding image as base64 (for demonstration purpose)
+    encoded_icon = import_html_media(img_path)
+
+    # Inject custom CSS for Google Fonts
+    st.markdown(
+        """
+        <style>
+            /* Import DM Serif Display and Pacifico from Google Fonts */
+            @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Pacifico&display=swap');
+
+            /* Apply font classes */
+            .dm-serif-display {
+                font-family: 'DM Serif Display', serif;
+            }
+
+            .pacifico {
+                font-family: 'Pacifico', cursive;
+            }
+
+            /* Center text styling for demonstration */
+            .center-text {
+                text-align: center;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # HTML and CSS content to render in Streamlit
+    st.markdown(
+        f"""
+        <style>
+        /* Flexbox container to center content */
+        .flex-container {{
+            display: flex;
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            width: 100%;
+            height: auto; /* Adjust height if needed */
+        }}
+
+        .card {{
+            cursor: pointer;
+            width: 380px;
+            height: 150px;
+            background: rgb(255, 255, 255);
+            border-radius: 15px;
+            border: 2px solid rgba(0, 0, 255, .2);
+            transition: all .2s;
+            box-shadow: 12px 12px 2px 1px rgba(0, 0, 255, .2);
+            display: flex;
+            align-items: center; /* Align vertically */
+            justify-content: flex-start; /* Align items to the left */
+            padding: 10px;
+            text-align: left;
+            font-family: Arial, sans-serif;
+            color: rgb(50, 50, 50);
+            margin: 20px;
+        }}
+
+        .card:hover {{
+            box-shadow: -12px 12px 2px -1px rgba(0, 0, 255, .2);
+        }}
+
+        .card img {{
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            margin-right: 20px;
+            margin-left: 20px;
+        }}
+
+        .card .subtitle {{
+            font-size: 20px;
+            font-family: 'DM Serif Display', serif;
+            font-weight: 600;
+            margin-top: 7px;
+        }}
+
+        .card .emotion {{
+            font-size: 30px;
+            font-family: 'Pacifico', cursive;
+            margin-bottom: -5px;
+        }}
+
+        .card .percentage {{
+            font-size: 50px;
+            font-family: 'DM Serif Display', serif;
+            font-weight: 600;
+        }}
+        </style>
+
+        <!-- Flexbox container wrapping the card -->
+        <div class="flex-container">
+            <div class="card">
+                <img src="data:image/png;base64,{encoded_icon}">
+                <div>
+                    <div class="subtitle">{top_emotion}</div>
+                    <div class="percentage">{percent_value}</div>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+def html_graph(image_base64, title=""):
+    """
+    Generates HTML content for displaying an image in Streamlit.
+
+    Args:
+    image_base64 (str): Base64 encoded image of the plot.
+    title (str): Title of the HTML container.
+    
+    Returns:
+    None
+    """
+    html_content = f"""
+    <div style="
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 60vh;
+        background: transparent;">
+        <div style="
+            border: 2px solid rgba(0, 0, 255, .2);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            background-color: #ffffff;
+            width: 85%;
+            box-shadow: 12px 12px 2px 1px rgba(0, 0, 255, .2);
+            margin-bottom: 40px;">
+            <img src="data:image/png;base64,{image_base64}" alt="{title}" style="width: 100%; border-radius: 10px;"/>
+        </div>
+    </div>
+    """
+    st.markdown(html_content, unsafe_allow_html=True)
+
+def mimicon_path(state:str):
+    return f"assets\mimi-icons\{state.lower()}-mimi.png"
+
+def extract_json(response_content):
+        try:
+            json_match = re.search(r"\{.*\}", response_content, re.DOTALL)
+            if json_match:
+                return json.loads(json_match.group())
+            else:
+                raise ValueError("No JSON object found in the response.")
+        except json.JSONDecodeError as e:
+            raise ValueError("Invalid JSON format.") from e
         
-#         # Verify the password using bcrypt
-#         return bcrypt.checkpw(password.encode('utf-8'), decoded_password)
-#     except Exception as e:
-#         print(f"Error during password verification: {e}")
-#         return False
+
+
+
+def extract_json_to_python(response_content):
+    try:
+        # Find the first valid JSON array in the response content
+        print("Raw Response Content for JSON Extraction:", response_content)
+        
+        json_match = re.search(r"\[.*\]", response_content, re.DOTALL)
+        if json_match:
+            extracted_json = json.loads(json_match.group(0))  # Convert the JSON string to Python object
+            return extracted_json
+        else:
+            raise ValueError("No valid JSON object found in the response.")
+    
+    except json.JSONDecodeError as e:
+        print("Error decoding JSON:", e)
+        raise ValueError("Invalid JSON format.") from e
+        
+
+def analyze_emotions(journal_entry):
+        messages = [
+            {
+                "role": "system",
+                "content": "You are an assistant that analyzes journal entries. Respond strictly with a JSON object containing percentages for the emotions Angry, Fear, Happy, Sad, Surprise. Ensure the percentages sum to 100%. Do not include any additional text."
+            },
+            {
+                "role": "user",
+                "content": f"Journal Entry: {journal_entry}"
+            }
+        ]
+        
+        response = openai.ChatCompletion.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            max_tokens=150,
+            temperature=0
+        )
+        
+        raw_content = response['choices'][0]['message']['content']
+        print("Raw Response:", raw_content)  # Debugging step
+        return extract_json(raw_content)
+
+def meow():
+    filepath = "assets\cat-meow.mp3"
+
+    mixer.init()
+    mixer.music.load(filepath)
+    mixer.music.play() 
+
+
+# Function to send the prompt and get a CBT-specific response
+def get_completion(prompt, model="gpt-4o-mini", temperature=0.7):
+    """
+    Sends a prompt to the specified language model and returns the model's CBT-based response.
+    
+    Parameters:
+    - prompt (str): The input prompt containing the user's statement or question.
+    - model (str): The model to be used for generating the completion.
+    - temperature (float): Controls the randomness of the output.
+    
+    Returns:
+    - str: The content of the response generated by the model, based on CBT principles.
+    """
+    messages = [
+        {"role": "system", "content": """
+            You are a therapist specialized in Cognitive Behavioral Therapy (CBT). 
+            Your goal is to help the user manage negative thoughts and emotions by 
+            applying CBT principles. Offer supportive, thoughtful responses and help the user 
+            reframe unhelpful thoughts.
+        """},
+        {"role": "user", "content": prompt}
+    ]
+
+    for role, message in st.session_state['chat_history']:
+        api_role = 'assistant' if role == 'Mimi' else 'user'
+        messages.append({"role": api_role, "content": message})
+
+
+    # Add the latest user input
+    messages.append({'role' : 'user' , 'content' : prompt})
+
+    # Sends a request to the OpenAI API with the specified parameters
+    response = openai.ChatCompletion.create(
+        model=model,
+        messages=messages,
+        temperature=temperature
+    )
+
+    # Returns the content of the response generated by the model
+    return response.choices[0].message['content']
+
+
+
+
+def generate_suggested_events(chat_history):
+
+
+    prompt = f"""
+    Based on the following chat history, suggest exactly two personalized activities the user can schedule:
+
+    Chat History:
+    {chat_history}
+
+    Suggestions:
+    Provide actionable events (e.g., 'Schedule a walk')
+    Ensure they align with the user's goals.  
+
+    Respond strictly with a JSON object with two entries, each having a title and a description. Do not include any extra information. 
+
+    Example:
+    [
+        {{"title": "Event 1", "description": "Description of event 1"}},
+        {{"title": "Event 2", "description": "Description of event 2"}}
+    ]
+    """
+
+    response = openai.ChatCompletion.create(
+        model = "gpt-4o-mini",
+            messages=[
+        {"role": "system", "content": "You are a helpful assistant providing CBT-based activity suggestions."},
+        {"role": "user", "content": prompt}
+        ],
+        temperature = 0
+    )
+
+    raw_content = response.choices[0].message['content']
+    return extract_json_to_python(raw_content)
+
+
+
+# Function to fetch the quote
+def fetch_quote():
+    url = 'https://www.louisehay.com/affirmations/'
+    page = requests.get(url)
+
+    # Check if the request was successful
+    if page.status_code != 200:
+        return 'Unsuccessful'
+
+    # Parse the HTML content
+    soup = BeautifulSoup(page.text, 'lxml')
+
+    # Extract the quote
+    quote = soup.find('div', {'class': 'da-quote'}).text.strip()
+    return quote
+
+
+def show_username_in_corner():
+    """
+    Displays the logged-in user's username in the top-right corner of the app.
+    """
+    if 'username' in st.session_state:
+        username = st.session_state['username']
+        # Display username using custom HTML and CSS
+        st.markdown(
+            f"""
+            <style>
+                .username-display {{
+                    top: 5px;
+                    left: 5px;
+                    background-color: #ab9ee2;
+                    padding: 8px 20px;
+                    border-radius: 10px;
+                    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+                    font-size: 20px;
+                    font-weight: bold;
+                    color: #272665;
+                    z-index: 1000;
+                    min-width: 150px; /* Ensures the box has a minimum width */
+                    height: auto; /* Adjust height automatically based on content */
+                    display: inline-block; /* Automatically adjust width based on content */
+                    white-space: nowrap; /* Prevents text from wrapping to the next line */
+                }}
+            </style>
+            <div class="username-display">
+                Logged in as: {username}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+

@@ -8,3 +8,6 @@ beautifulsoup4
 requests
 python-dotenv
 snowflake-connector-python
+seaborn
+bcrypt
+pygame
