@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
 import mello_functions as mf
-import base64
 
 def display_dashboard():
+
+    mf.show_username_in_corner()
 
     if 'user_id' in st.session_state:
         user_id = int(st.session_state['user_id'])

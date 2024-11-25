@@ -1,26 +1,31 @@
 import streamlit as st
 from streamlit_calendar import calendar
-import pandas as pd
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 import mello_functions as mf
-import base64
 
 def display_habit():
 
+    mf.show_username_in_corner()
+
+    # Retrieve the user id from the session state
     user_id = int(st.session_state['user_id'])
     
     # Insert page title
     mf.page_title("Calendar", "assets\mimi-icons\habit-mimi.png")
 
+    # Insert subheader
     st.subheader("Create a new habit")
 
+    # Define how regular habits can be tracked
     habit_regularity = [
         "Daily", 
         "Weekly"
     ]
 
+    # Retrieve todays date
     today = datetime.today()
 
+    # Allow users to create a new habit
     with st.expander("Add a new habit", expanded= False):
 
         title = st.text_input("Habit Title")
@@ -104,7 +109,6 @@ def display_habit():
             } for _, row in events.iterrows()]
     
     calendar(events = formatted_events)
-    # st.rerun()
 
 
 
