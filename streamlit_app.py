@@ -64,7 +64,7 @@ if 'username' not in st.session_state:
     st.markdown(
                     f"""
                     <div style="display: flex; justify-content: center; align-items: center; height: 400px;">
-                        <img src="data:image/gif;base64,{changing_mimi}" style="width: 350px; height: 350px;" />
+                        <img src="data:image/gif;base64,{changing_mimi}" style="width: 300px; height: 300px;" />
                     </div>
                     """,
                     unsafe_allow_html=True,
