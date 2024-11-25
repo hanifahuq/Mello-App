@@ -6,15 +6,26 @@ from datetime import datetime
 import seaborn as sns
 import matplotlib.pyplot as plt
 import io
-from matplotlib.dates import DateFormatter, AutoDateLocator
 
 def display_dashboard():
 
     if 'user_id' in st.session_state:
         user_id = int(st.session_state['user_id'])
 
+    ## LAYOUT ##
     # Insert page title
     mf.page_title("Dashboard", mf.mimicon_path("Dashboard"))
+
+    info_container = st.container()
+
+    # Show the KPI's
+    kpi1, kpi2, kpi3, kpi4 = st.columns(4)
+
+    bargraph_container = st.container()
+
+    timeline_container = st.container()
+
+    ## LOGIC ##
 
     NA_str = "--"
     min_entries = 3
@@ -34,8 +45,6 @@ def display_dashboard():
         top_emotion_value = NA_str
         st.info('Submit your Journal to get more insights!')
 
-    # Show the KPI's
-    kpi1, kpi2, kpi3, kpi4 = st.columns(4)
 
     ## TODO repeated code from journal - maybe turn into a function
     if ('events_loaded' not in st.session_state) or (st.session_state['events_loaded'] == False):
@@ -66,19 +75,13 @@ def display_dashboard():
             f"{top_emotion_value}%"
         )
     with kpi2:
+        # TODO Change the journal streat by extracting data and calculating current streak
         mf.kpi_card(f"assets/fire-icon.png", "Journal Streak", 50)
     with kpi3:
+        # TODO Change the journal streak by extracting data and calculate the best streak
         mf.kpi_card(f"assets/trophy-icon.png", "Best Journal Streak", 10)
     with kpi4:
         mf.kpi_card(mf.mimicon_path(todo_emoticon), "Todo's Today:", remaining_tasks)
-
-    # st.subheader('Emotion Trends For Today')
-    # st.bar_chart(emotions_data.set_index('Emotion'))
-    
-    # emotions_overtime = mf.query_select('journal_entries', user_id = user_id, columns = ('Angry', 'Fear', 'Happy', 'Sad', 'Surprise'))
-    # mean_emotions = emotions_overtime.mean()
-    # st.subheader('Mean Emotions From All Journal Entries.')
-    # st.bar_chart(mean_emotions)
 
     if 'emotions' in st.session_state and st.session_state['emotions']:
         # Set up the plot
@@ -106,7 +109,7 @@ def display_dashboard():
         buf.close()
 
         # Render the HTML in Streamlit
-        with st.container():
+        with bargraph_container:
             mf.html_graph(emotion_graph)
     
     if 'all_entries' not in st.session_state:
@@ -125,7 +128,8 @@ def display_dashboard():
         # Group any identical dates together (multiple entries in same day)
         entries_grouped = journal_entries.groupby('DATE').mean().reset_index()
 
-    
+
+
         if len(entries_grouped) > min_entries:
 
             # Melt the DataFrame to use seaborn lineplot for time series
@@ -165,7 +169,7 @@ def display_dashboard():
             buf.close()
 
             # Render the HTML in Streamlit
-            with st.container():
+            with timeline_container:
                 mf.html_graph(timeline_graph)
         else:
             st.info(f"Submit at least {min_entries} journals to see data!")

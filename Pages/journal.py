@@ -178,7 +178,75 @@ def display_journal():
 
                 st.session_state['events_loaded'] = False
                 meow()
-                st.success('Journal Submitted - Head over to Mimi!')
+                # st.success('Journal Submitted - Head over to Mimi!')
+
+                # Success message
+                # Inject CSS styles
+                st.markdown(
+                    """
+                    <style>
+                    /* From Uiverse.io by andrew-demchenk0 */ 
+                    .success {
+                        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                        width: 320px;
+                        padding: 12px;
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        justify-content: start;
+                        background: #EDFBD8;
+                        border-radius: 8px;
+                        border: 1px solid #84D65A;
+                        box-shadow: 0px 0px 5px -3px #111;
+                        margin-bottom: 20px;
+                    }
+
+                    .success__icon {
+                        width: 35px;
+                        height: 35px;
+                        transform: translateY(-2px);
+                        margin-right: 8px;
+                    }
+
+                    .success__icon path {
+                        fill: #84D65A;
+                    }
+
+                    .success__title {
+                        font-weight: 500;
+                        font-size: 14px;
+                        color: #2B641E;
+                        margin-left: 10px;
+                    }
+
+                    .success__close {
+                        width: 20px;
+                        height: 20px;
+                        cursor: pointer;
+                        margin-left: auto;
+                    }
+
+                    .success__close path {
+                        fill: #2B641E;
+                    }
+                    </style>
+                    """,
+                    unsafe_allow_html=True,
+                )
+
+                super_mimi = mf.import_html_media("assets\mimi-icons\super-mimi.png")
+
+                st.markdown(
+                    f"""
+                    <div class="success">
+                        <div class="success__icon">
+                            <img src="data:image/png;base64,{super_mimi}" alt="Success Icon" style="width: 35px; height: 35px; margin-right: 8px;" />
+                        </div>
+                        <div class="success__title">Journal submitted - Head to Mimi!</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
     else:
         st.success("You've already submitted your journal for today!")
 
