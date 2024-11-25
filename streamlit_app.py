@@ -59,6 +59,17 @@ st.markdown(
 # User authentication
 if 'username' not in st.session_state:
     
+    # Add changing mimi gif at the top
+    changing_mimi = mf.img_to_base64("assets\changing-mimi.gif")
+    st.markdown(
+                    f"""
+                    <div style="display: flex; justify-content: center; align-items: center; height: 400px;">
+                        <img src="data:image/gif;base64,{changing_mimi}" style="width: 350px; height: 350px;" />
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )    
+
     # App content with styled text
     st.markdown(
         """
