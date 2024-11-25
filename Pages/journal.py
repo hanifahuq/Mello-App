@@ -1,32 +1,21 @@
+# Importing the necessary packages
 import streamlit as st
-import time
-from playsound import playsound
-import requests
-from pprint import pprint
-import json
-import pandas as pd
 import os
 from dotenv import load_dotenv
-from datetime import date
-import mello_functions as mf
 from datetime import datetime
-import base64
 import openai
-import re
-from pygame import mixer
+import mello_functions as mf
 
-def meow():
-    filepath = "assets\cat-meow.mp3"
-
-    mixer.init()
-    mixer.music.load(filepath)
-    mixer.music.play() 
 
 def display_journal():
+
+    mf.show_username_in_corner()
 
     # Add page title
     mf.page_title("Journal", "assets\mimi-icons\journal-mimi.png")
 
+
+    # Initializing session states
     if'journal_text' not in st.session_state:
         st.session_state['journal_text'] = ''
 
@@ -83,12 +72,13 @@ def display_journal():
 
         with st.form(key = "Journal Entry"):
             
-            # Journal entry
+            # Journal entry text area
             journal_entry = st.text_area("How was your day? (Feel free to reflect on any thoughts or emotions you had today)",
                                         value=st.session_state.get('journal_text', ''),
                                         height=250,
                                         placeholder=example_questions)
        
+            # Adds the habits to the Journal page which can be ticked when completed
             st.subheader("To Do:")
             if not todays_events.empty:
                 for index, event in todays_events.iterrows():
@@ -100,14 +90,14 @@ def display_journal():
             # Create a form submit button
             submit_button = st.form_submit_button("Submit")
 
-
+        # When the submit button is pressed and the journal entry completed, process the journal
         if submit_button:
             st.session_state['journal_text'] = journal_entry
             st.session_state['submitted'] = True
 
             with st.spinner('Processing your Journal...'):
  
-                 # Update the events database
+                # Update the events database to show these have been completed in the calendar
                 for index, event in todays_events.iterrows():
                     checkbox_key = f'eventcheck_{index}'
                     if st.session_state.get(checkbox_key):  # Check if the checkbox is checked
@@ -119,67 +109,32 @@ def display_journal():
                             condition_value=event['EVENT_ID']
                         )
               
+                # Get the date of when the journal is written
                 journal_date = datetime.now().date()
 
-                def extract_json(response_content):
-                    try:
-                        json_match = re.search(r"\{.*\}", response_content, re.DOTALL)
-                        if json_match:
-                            return json.loads(json_match.group())
-                        else:
-                            raise ValueError("No JSON object found in the response.")
-                    except json.JSONDecodeError as e:
-                        raise ValueError("Invalid JSON format.") from e
+                # Analyze the journal entry to extract emotions using the analyze emotions function
+                result = mf.analyze_emotions(journal_entry)
 
-                def analyze_emotions(journal_entry):
-                    messages = [
-                        {
-                            "role": "system",
-                            "content": "You are an assistant that analyzes journal entries. Respond strictly with a JSON object containing percentages for the emotions Angry, Fear, Happy, Sad, Surprise. Ensure the percentages sum to 100%. Do not include any additional text."
-                        },
-                        {
-                            "role": "user",
-                            "content": f"Journal Entry: {journal_entry}"
-                        }
-                    ]
-                    
-                    response = openai.ChatCompletion.create(
-                        model="gpt-4o-mini",
-                        messages=messages,
-                        max_tokens=150,
-                        temperature=0
-                    )
-                    
-                    raw_content = response['choices'][0]['message']['content']
-                    print("Raw Response:", raw_content)  # Debugging step
-                    return extract_json(raw_content)
-
-
-                emotions = analyze_emotions(journal_entry)
-
-                result = emotions
-            
+                # Store the result in the emotions session state
                 st.session_state['emotions'] = result
 
-                # # Extract the emotion scores
+                # Extract the emotion scores from the journal entry
                 angry_score = result.get('Angry', 0.0)
                 fear_score = result.get('Fear', 0.0)
                 happy_score = result.get('Happy', 0.0)
                 sad_score = result.get('Sad', 0.0)
                 surprise_score = result.get('Surprise', 0.0)
 
+                # Insert the emotions extracted into the journal entries table to use in the dashboard
                 try:
-                    # insert journal into journal entries table
-                    mf.insert_data("JOURNAL_ENTRIES", columns = ('user_id', 'date_created', 'entry_text', 'angry', 'fear', 'happy', 'sad', 'surprise'), data = (str(user_id), journal_date, str(journal_entry), angry_score, fear_score, happy_score, sad_score, surprise_score))
+                    mf.insert_data("JOURNAL_ENTRIES", columns = ('user_id', 'date_created', 'angry', 'fear', 'happy', 'sad', 'surprise'), data = (str(user_id), journal_date, angry_score, fear_score, happy_score, sad_score, surprise_score))
                 except Exception as e:
                     st.error(f"Error submitting journal entry: {e}")
 
                         
-
+                # Change the events loaded session state to false
                 st.session_state['events_loaded'] = False
-                meow()
-                # st.success('Journal Submitted - Head over to Mimi!')
-
+   
                 # Success message
                 # Inject CSS styles
                 st.markdown(
@@ -247,7 +202,13 @@ def display_journal():
                     """,
                     unsafe_allow_html=True,
                 )
+
+
+                # Play meow when the journal has been processed
+                mf.meow()
+
     else:
+        # Only one journal can be submitted each day
         st.success("You've already submitted your journal for today!")
 
            
