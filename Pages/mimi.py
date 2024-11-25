@@ -147,6 +147,7 @@ def display_mimi():
                     st.session_state['question_count'] += 1
                     st.session_state['chat_history'].append(('user', user_input))
 
+           
 
                     # Get the chatbot's response using the OpenAI API
                     response = mf.get_completion(prompt=user_input, model="gpt-4o-mini", temperature=0.7)
