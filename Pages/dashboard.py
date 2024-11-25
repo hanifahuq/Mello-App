@@ -9,6 +9,8 @@ import io
 
 def display_dashboard():
 
+    mf.show_username_in_corner()
+
     if 'user_id' in st.session_state:
         user_id = int(st.session_state['user_id'])
 
