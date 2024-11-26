@@ -4,12 +4,12 @@ import mello_functions as mf
 import pandas as pd
 
 
-from pages.home import display_home
-from pages.journal import display_journal
-from pages.mimi import display_mimi
-from pages.habit import display_habit
-from pages.dashboard import display_dashboard
-from pages.about import display_about
+from Pages.home import display_home
+from Pages.journal import display_journal
+from Pages.mimi import display_mimi
+from Pages.habit import display_habit
+from Pages.dashboard import display_dashboard
+from Pages.about import display_about
 
 # Set the page configuration to wide layout
 st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
