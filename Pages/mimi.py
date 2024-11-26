@@ -10,7 +10,7 @@ def display_mimi():
     mf.show_username_in_corner()
 
     # Add page title
-    mf.page_title("Mimi", "assets\mimi-icons\mimi-mimi.png")
+    mf.page_title("Mimi", "assets/mimi-icons/mimi-mimi.png")
 
     # Retrieve the user id from session state
     user_id = int(st.session_state['user_id'])

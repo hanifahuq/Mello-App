@@ -12,7 +12,7 @@ def display_journal():
     mf.show_username_in_corner()
 
     # Add page title
-    mf.page_title("Journal", "assets\mimi-icons\journal-mimi.png")
+    mf.page_title("Journal", "assets/mimi-icons/journal-mimi.png")
 
 
     # Initializing session states

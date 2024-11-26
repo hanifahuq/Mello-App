@@ -11,7 +11,7 @@ def display_habit():
     user_id = int(st.session_state['user_id'])
     
     # Insert page title
-    mf.page_title("Calendar", "assets\mimi-icons\habit-mimi.png")
+    mf.page_title("Calendar", "assets/mimi-icons/habit-mimi.png")
 
     # Insert subheader
     st.subheader("Create a new habit")
