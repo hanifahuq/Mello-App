@@ -486,7 +486,7 @@ def html_graph(image_base64, title=""):
     st.markdown(html_content, unsafe_allow_html=True)
 
 def mimicon_path(state:str):
-    return f"assets\mimi-icons\{state.lower()}-mimi.png"
+    return f"assets/mimi-icons/{state.lower()}-mimi.png"
 
 def extract_json(response_content):
         try:
