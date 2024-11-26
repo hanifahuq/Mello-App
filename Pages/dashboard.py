@@ -69,6 +69,10 @@ def display_dashboard():
     else:
         todo_emoticon = "spa"
 
+    with kpi4:
+            mf.kpi_card(mf.mimicon_path(todo_emoticon), "Todo's Today", remaining_tasks)
+    
+
     alt_emoticon = mf.mimicon_path("about")
 
     if 'emotions' in st.session_state and st.session_state['emotions']:
@@ -121,6 +125,11 @@ def display_dashboard():
         streaks = entries_grouped.value_counts('GROUP').reset_index()
 
         best_streak = streaks['count'].max()
+
+        with kpi3:
+            # TODO Change the journal streak by extracting data and calculate the best streak
+            mf.kpi_card(f"assets/trophy-icon.png", "Best Streak", best_streak)
+
 
         # Current streak (if today is included in the latest streak)
         today = pd.Timestamp.now().normalize()
@@ -188,11 +197,11 @@ def display_dashboard():
         # with kpi2:
         #     # TODO Change the journal streat by extracting data and calculating current streak
         #     mf.kpi_card(f"assets/fire-icon.png", "Journal Streak", current_streak)
-        with kpi3:
-            # TODO Change the journal streak by extracting data and calculate the best streak
-            mf.kpi_card(f"assets/trophy-icon.png", "Best Streak", best_streak)
-        with kpi4:
-            mf.kpi_card(mf.mimicon_path(todo_emoticon), "Todo's Today", remaining_tasks)
+        # with kpi3:
+        #     # TODO Change the journal streak by extracting data and calculate the best streak
+        #     mf.kpi_card(f"assets/trophy-icon.png", "Best Streak", best_streak)
+        # with kpi4:
+        #     mf.kpi_card(mf.mimicon_path(todo_emoticon), "Todo's Today", remaining_tasks)
 
 
 
