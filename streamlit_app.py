@@ -88,12 +88,12 @@ if 'username' not in st.session_state:
         login_create_options = ["Login", "Create an account"]
         login_create = st.selectbox("", options = login_create_options, index = 1)
 
-        username = st.text_input("Username").lower()
+        username = st.text_input(label="Username").lower()
 
         if login_create == login_create_options[0]:
 
             # Setting up the form layout
-            password = st.text_input("Password", type='password')
+            password = st.text_input(label="Password", type='password')
             login_button = st.button("Login")
 
             if login_button:
@@ -119,9 +119,9 @@ if 'username' not in st.session_state:
         else:
 
             # Set up form layout
-            name = st.text_input("Name")
-            password = st.text_input("Password", type="password")
-            confirm_password = st.text_input("Confirm Password", type='password')
+            name = st.text_input(label="Name")
+            password = st.text_input(label="Password", type="password")
+            confirm_password = st.text_input(label="Confirm Password", type='password')
             data_permission = st.checkbox("I comply with the terms and conditions")
 
             with open("assets/txt-files/Terms and Conditions.txt", "r", encoding="utf-8") as file:
