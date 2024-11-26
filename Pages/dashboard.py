@@ -129,6 +129,10 @@ def display_dashboard():
         else:
             current_streak = 0
 
+            with kpi2:
+                # TODO Change the journal streat by extracting data and calculating current streak
+                mf.kpi_card(f"assets/fire-icon.png", "Journal Streak", current_streak)
+
         if len(entries_grouped) > min_entries:
 
             # Melt the DataFrame to use seaborn lineplot for time series
@@ -181,9 +185,9 @@ def display_dashboard():
             f"Feeling: {top_emotion}", 
             f"{top_emotion_value}%"
         )
-    with kpi2:
-        # TODO Change the journal streat by extracting data and calculating current streak
-        mf.kpi_card(f"assets/fire-icon.png", "Journal Streak", current_streak)
+    # with kpi2:
+    #     # TODO Change the journal streat by extracting data and calculating current streak
+    #     mf.kpi_card(f"assets/fire-icon.png", "Journal Streak", current_streak)
     with kpi3:
         # TODO Change the journal streak by extracting data and calculate the best streak
         mf.kpi_card(f"assets/trophy-icon.png", "Best Streak", best_streak)
