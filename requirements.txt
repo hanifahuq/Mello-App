@@ -11,3 +11,4 @@ snowflake-connector-python
 seaborn
 bcrypt
 pygame
+lxml
