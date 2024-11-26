@@ -24,15 +24,22 @@ def get_db_connection():
         None
     """
 
-    load_dotenv(dotenv_path='pages/.env')
+    #load_dotenv(dotenv_path='pages/.env')
 
     # Setting up env and connection variables:
-    ACCOUNT = os.getenv('ACCOUNT')
-    USER = os.getenv('USER')
-    PASSWORD =  os.getenv('PASSWORD')
-    WAREHOUSE =  os.getenv('WAREHOUSE')
-    DATABASE = "MELLOAPPLICATIONDATA"
-    SCHEMA = "APP_SCHEMA"
+    # ACCOUNT = os.getenv('ACCOUNT')
+    # USER = os.getenv('USER')
+    # PASSWORD =  os.getenv('PASSWORD')
+    # WAREHOUSE =  os.getenv('WAREHOUSE')
+    # DATABASE = "MELLOAPPLICATIONDATA"
+    # SCHEMA = "APP_SCHEMA"
+
+    ACCOUNT = st.secrets["ACCOUNT"]
+    USER = st.secrets['USER']
+    PASSWORD = st.secrets['PASSWORD']
+    WAREHOUSE = st.secrets['WAREHOUSE']
+    DATABASE = st.secrets["MELLOAPPLICATIONDATA"]
+    SCHEMA = st.secrets['APP_SCHEMA']
 
     ##Establishing the connection and cursor to be used to execute the API requests:
     ctx = snowflake.connector.connect(

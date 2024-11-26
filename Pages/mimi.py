@@ -16,15 +16,17 @@ def display_mimi():
     user_id = int(st.session_state['user_id'])
     
     # Load environment variables from the .env file
-    load_dotenv()
+    # load_dotenv()
 
-    # Access the OpenAI API key
-    openai.api_key = os.getenv('OPENAI_API_KEY')
+    # # Access the OpenAI API key
+    # openai.api_key = os.getenv('OPENAI_API_KEY')
 
-    if openai.api_key:
-        print(f"OpenAI API Key loaded successfully!")
-    else:
-        print("Error: OpenAI API Key not found!")
+    # if openai.api_key:
+    #     print(f"OpenAI API Key loaded successfully!")
+    # else:
+    #     print("Error: OpenAI API Key not found!")
+
+    openai.api_key = st.secrets["OPENAI_API_KEY"]
 
     # Initialize session states
  
