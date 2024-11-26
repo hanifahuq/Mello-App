@@ -16,7 +16,7 @@ def display_dashboard():
 
     ## LAYOUT ##
     # Insert page title
-    mf.page_title("Dashboard", mf.mimicon_path("Dashboard"))
+    mf.page_title("Dashboard", "assets/mimi-icons/dashboard-mimi.png")
 
     info_container = st.container()
 
