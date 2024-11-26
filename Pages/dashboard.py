@@ -129,9 +129,9 @@ def display_dashboard():
         else:
             current_streak = 0
 
-            with kpi2:
-                # TODO Change the journal streat by extracting data and calculating current streak
-                mf.kpi_card(f"assets/fire-icon.png", "Journal Streak", current_streak)
+        with kpi2:
+            # TODO Change the journal streat by extracting data and calculating current streak
+            mf.kpi_card(f"assets/fire-icon.png", "Journal Streak", current_streak)
 
         if len(entries_grouped) > min_entries:
 
@@ -179,20 +179,20 @@ def display_dashboard():
     else:
         st.info(f"Submit at least {min_entries} journals to see data!")
 
-    with kpi1:
-        mf.kpi_card(
-            mf.mimicon_path(top_emotion) if top_emotion != NA_str else alt_emoticon, 
-            f"Feeling: {top_emotion}", 
-            f"{top_emotion_value}%"
-        )
-    # with kpi2:
-    #     # TODO Change the journal streat by extracting data and calculating current streak
-    #     mf.kpi_card(f"assets/fire-icon.png", "Journal Streak", current_streak)
-    with kpi3:
-        # TODO Change the journal streak by extracting data and calculate the best streak
-        mf.kpi_card(f"assets/trophy-icon.png", "Best Streak", best_streak)
-    with kpi4:
-        mf.kpi_card(mf.mimicon_path(todo_emoticon), "Todo's Today", remaining_tasks)
+        with kpi1:
+            mf.kpi_card(
+                mf.mimicon_path(top_emotion) if top_emotion != NA_str else alt_emoticon, 
+                f"Feeling: {top_emotion}", 
+                f"{top_emotion_value}%"
+            )
+        # with kpi2:
+        #     # TODO Change the journal streat by extracting data and calculating current streak
+        #     mf.kpi_card(f"assets/fire-icon.png", "Journal Streak", current_streak)
+        with kpi3:
+            # TODO Change the journal streak by extracting data and calculate the best streak
+            mf.kpi_card(f"assets/trophy-icon.png", "Best Streak", best_streak)
+        with kpi4:
+            mf.kpi_card(mf.mimicon_path(todo_emoticon), "Todo's Today", remaining_tasks)
 
 
 
