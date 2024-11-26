@@ -134,6 +134,9 @@ def display_journal():
                         
                 # Change the events loaded session state to false
                 st.session_state['events_loaded'] = False
+
+                # Play meow when the journal has been processed
+                mf.meow()
    
                 # Success message
                 # Inject CSS styles
@@ -202,10 +205,6 @@ def display_journal():
                     """,
                     unsafe_allow_html=True,
                 )
-
-
-                # Play meow when the journal has been processed
-                mf.meow()
 
     else:
         # Only one journal can be submitted each day

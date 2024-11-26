@@ -20,7 +20,7 @@ def display_about():
         st.markdown("""
             <div style="text-align: center;">
                 <p>
-                    This app is designed to enhance mental well-being through psychological prinicples, by helping users organise their often stressful daily lives, track moods and manage habits.
+                    This app is designed to enhance mental well-being through psychological principles, by helping users organise their often stressful daily lives, track moods and manage habits.
                 </p>
                 <h3>Our Mission</h3>
                 <p>To help users manage stress, stay organised, and maintain a balanced mindset!.</p>
