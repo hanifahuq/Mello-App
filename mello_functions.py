@@ -38,8 +38,8 @@ def get_db_connection():
     USER = st.secrets['USER']
     PASSWORD = st.secrets['PASSWORD']
     WAREHOUSE = st.secrets['WAREHOUSE']
-    DATABASE = st.secrets["MELLOAPPLICATIONDATA"]
-    SCHEMA = st.secrets['APP_SCHEMA']
+    DATABASE = "MELLOAPPLICATIONDATA"
+    SCHEMA = "APP_SCHEMA"
 
     ##Establishing the connection and cursor to be used to execute the API requests:
     ctx = snowflake.connector.connect(
