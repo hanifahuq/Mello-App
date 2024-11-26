@@ -29,7 +29,7 @@ def display_home():
       """, unsafe_allow_html=True
   )
 
- # Custom CSS for styling
+  # Custom CSS for styling
   st.markdown(
     """
     <style>
@@ -48,11 +48,11 @@ def display_home():
     unsafe_allow_html=True
   )
   
- # Encode the image in base64
+  # Encode the image in base64
   with open("assets/mimi-icons/flower-mimi.png", "rb") as file:
       image_base64 = base64.b64encode(file.read()).decode()
   
-    # Embed the HTML structure with the image in base64
+  # Embed the HTML structure with the image in base64
   st.markdown(
     f"""
     <div class="title-container">
@@ -63,6 +63,7 @@ def display_home():
     """,
     unsafe_allow_html=True
   )
+  
   # Fetch and display the quote
   quote = mf.fetch_quote()
 

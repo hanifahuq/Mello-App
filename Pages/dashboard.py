@@ -61,6 +61,7 @@ def display_dashboard():
 
     # Get the length of people 
     todays_uncompleted_tasks = events[(events['ASSIGNED_DATE'] == datetime.today().date()) & (events['COMPLETED'] != True)]
+
     remaining_tasks = len(todays_uncompleted_tasks)
 
     if remaining_tasks > 0:
@@ -69,21 +70,6 @@ def display_dashboard():
         todo_emoticon = "spa"
 
     alt_emoticon = mf.mimicon_path("about")
-
-    with kpi1:
-        mf.kpi_card(
-            mf.mimicon_path(top_emotion) if top_emotion != NA_str else alt_emoticon, 
-            f"Today I am: {top_emotion}", 
-            f"{top_emotion_value}%"
-        )
-    with kpi2:
-        # TODO Change the journal streat by extracting data and calculating current streak
-        mf.kpi_card(f"assets/fire-icon.png", "Journal Streak", 50)
-    with kpi3:
-        # TODO Change the journal streak by extracting data and calculate the best streak
-        mf.kpi_card(f"assets/trophy-icon.png", "Best Journal Streak", 10)
-    with kpi4:
-        mf.kpi_card(mf.mimicon_path(todo_emoticon), "Todo's Today:", remaining_tasks)
 
     if 'emotions' in st.session_state and st.session_state['emotions']:
         # Set up the plot
@@ -113,24 +99,35 @@ def display_dashboard():
         # Render the HTML in Streamlit
         with bargraph_container:
             mf.html_graph(emotion_graph)
-    
+
     if 'all_entries' not in st.session_state:
         journal_entries = mf.query_select("journal_entries", 
-                                          ("date_created", "angry", "fear", "happy", "sad", "surprise"), 
-                                          user_id = user_id)
+                                            ("date_created", "angry", "fear", "happy", "sad", "surprise"), 
+                                            user_id = user_id)
         st.session_state['all_entries'] = journal_entries
     else:
         journal_entries = st.session_state['all_entries']
-    
-    st.dataframe(journal_entries)
 
     if not journal_entries.empty:
         journal_entries['DATE'] = pd.to_datetime(journal_entries['DATE_CREATED'], format='%Y-%m-%d')
 
         # Group any identical dates together (multiple entries in same day)
-        entries_grouped = journal_entries.groupby('DATE').mean().reset_index()
+        entries_grouped = journal_entries.groupby('DATE').mean().reset_index().sort_values(by = 'DATE')
 
+        # Find consecutive date groups
+        entries_grouped['GROUP'] = (entries_grouped['DATE'].diff().dt.days != 1).cumsum()
 
+        # Calculate streak lengths
+        streaks = entries_grouped.value_counts('GROUP').reset_index()
+
+        best_streak = streaks['count'].max()
+
+        # Current streak (if today is included in the latest streak)
+        today = pd.Timestamp.now().normalize()
+        if today in entries_grouped['DATE'].values:
+            current_streak = streaks.iloc[-1]['count']
+        else:
+            current_streak = 0
 
         if len(entries_grouped) > min_entries:
 
@@ -178,8 +175,22 @@ def display_dashboard():
     else:
         st.info(f"Submit at least {min_entries} journals to see data!")
 
+    with kpi1:
+        mf.kpi_card(
+            mf.mimicon_path(top_emotion) if top_emotion != NA_str else alt_emoticon, 
+            f"Feeling: {top_emotion}", 
+            f"{top_emotion_value}%"
+        )
+    with kpi2:
+        # TODO Change the journal streat by extracting data and calculating current streak
+        mf.kpi_card(f"assets/fire-icon.png", "Journal Streak", current_streak)
+    with kpi3:
+        # TODO Change the journal streak by extracting data and calculate the best streak
+        mf.kpi_card(f"assets/trophy-icon.png", "Best Streak", best_streak)
+    with kpi4:
+        mf.kpi_card(mf.mimicon_path(todo_emoticon), "Todo's Today", remaining_tasks)
 
 
 
 
-    
+
