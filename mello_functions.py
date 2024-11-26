@@ -249,10 +249,34 @@ def update_data(table_name: str, column_to_update: str, new_value: bool, conditi
         cursor.close()
         conn.close()
 
+# def import_html_media(media_path: str):
+#     # Encode the image in base64
+#     with open(media_path, "rb") as img_file:
+#         return base64.b64encode(img_file.read()).decode()
+
+
 def import_html_media(media_path: str):
-    # Encode the image in base64
-    with open(media_path, "rb") as img_file:
-        return base64.b64encode(img_file.read()).decode()
+    """
+    Encodes a media file (image, video, etc.) to Base64 for embedding in HTML.
+
+    Args:
+        media_path (str): Relative path to the media file.
+
+    Returns:
+        str: Base64-encoded string of the media file.
+    """
+    # Construct the absolute path to the media file
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    full_path = os.path.join(base_path, media_path)
+
+    # Check if the file exists
+    if not os.path.exists(full_path):
+        raise FileNotFoundError(f"Media file not found: {full_path}")
+
+    # Encode the file in Base64
+    with open(full_path, "rb") as media_file:
+        return base64.b64encode(media_file.read()).decode()
+
 
 def page_title(title:str, img_path):
     # Add custom CSS to center the title and change font size
