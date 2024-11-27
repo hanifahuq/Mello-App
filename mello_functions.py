@@ -680,3 +680,39 @@ def show_username_in_corner():
             unsafe_allow_html=True
         )
 
+
+def transcribe_audio(audio_data):
+
+    api_key = st.secrets['API_KEY']
+    headers = {
+        "authorization": api_key,
+        "content-type": "application/json"
+    }
+
+    # Upload audio to AssemblyAI
+    response = requests.post(
+        "https://api.assemblyai.com/v2/upload",
+        headers=headers,
+        data=base64.b64decode(audio_data.split(",")[1])
+    )
+    upload_url = response.json()['upload_url']
+
+    # Transcribe the audio
+    transcript_response = requests.post(
+        "https://api.assemblyai.com/v2/transcript",
+        headers=headers,
+        json={"audio_url": upload_url}
+    )
+    transcript_id = transcript_response.json()['id']
+
+    # Poll the API to get the result
+    while True:
+        result = requests.get(
+            f"https://api.assemblyai.com/v2/transcript/{transcript_id}",
+            headers=headers
+        ).json()
+        if result['status'] == 'completed':
+            return result['text']  # Return the transcribed text
+        elif result['status'] == 'failed':
+            st.error("Transcription failed.")
+            return None

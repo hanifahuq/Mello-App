@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 import openai
 import mello_functions as mf
+from st_mic_recorder import st_mic_recorder
 
 
 def display_journal():
@@ -34,16 +35,18 @@ def display_journal():
     if'habit_status' not in st.session_state:
         st.session_state['habit_status'] = {}
 
-     # Load environment variables from the .env file
-    load_dotenv()
+    #  # Load environment variables from the .env file
+    # load_dotenv()
 
-    # Access the OpenAI API key
-    openai.api_key = os.getenv('OPENAI_API_KEY')
+    # # Access the OpenAI API key
+    # openai.api_key = os.getenv('OPENAI_API_KEY')
 
-    if openai.api_key:
-        print(f"OpenAI API Key loaded successfully!")
-    else:
-        print("Error: OpenAI API Key not found!")
+    # if openai.api_key:
+    #     print(f"OpenAI API Key loaded successfully!")
+    # else:
+    #     print("Error: OpenAI API Key not found!")
+
+    openai.api_key = st.secrets["OPENAI_API_KEY"]
 
     
     # TODO put this into mello functions -- repeated code from habit.py
@@ -82,7 +85,22 @@ def display_journal():
         journal_entry = st.text_area("How was your day? (Feel free to reflect on any thoughts or emotions you had today)",
                                     value=st.session_state.get('journal_text', ''),
                                     height=250,
-                                    placeholder=example_questions)
+                                    placeholder=example_questions,
+                                    key = "journal_input")
+        
+        # Add mic recorder
+        st.subheader("Record your journal:")
+        audio_data = st_mic_recorder()
+
+        if st.form_submit_button("Transcribe Audio"):
+            if audio_data:
+                with st.spinner("Transcribing audio..."):
+                    transcribed_text = mf.transcribe_audio(audio_data)
+                    if transcribed_text:
+                        st.session_state['journal_text'] = transcribed_text
+                        st.success("Audio transcribed successfully! Text added to your journal entry")
+        
+        submit_button = st.form_submit_button("Submit")
     
         # Adds the habits to the Journal page which can be ticked when completed
         st.subheader("To Do:")
