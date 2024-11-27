@@ -541,12 +541,12 @@ def analyze_emotions(journal_entry):
         print("Raw Response:", raw_content)  # Debugging step
         return extract_json(raw_content)
 
+
 def meow():
     filepath = "assets/cat-meow.mp3"
-
-    mixer.init()
-    mixer.music.load(filepath)
-    mixer.music.play() 
+    # Use Streamlit's built-in audio playback
+    with open(filepath, "rb") as audio_file:
+        st.audio(audio_file.read(), format="audio/mp3") 
 
 
 # Function to send the prompt and get a CBT-specific response
