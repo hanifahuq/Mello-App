@@ -216,8 +216,8 @@ def display_journal():
                     unsafe_allow_html=True,
                 )
 
-    else:
-        # Only one journal can be submitted each day
-        st.success("You've already submitted your journal for today!")
+    # else:
+    #     # Only one journal can be submitted each day
+    #     st.success("You've already submitted your journal for today!")
 
            
