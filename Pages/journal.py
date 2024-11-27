@@ -28,6 +28,12 @@ def display_journal():
     if 'user_id' in st.session_state:
         user_id = int(st.session_state['user_id'])
 
+    if'journal_entries' not in st.session_state:
+        st.session_state['journal_entries'] = []
+
+    if'habit_status' not in st.session_state:
+        st.session_state['habit_status'] = {}
+
      # Load environment variables from the .env file
     load_dotenv()
 
@@ -82,7 +88,10 @@ def display_journal():
             st.subheader("To Do:")
             if not todays_events.empty:
                 for index, event in todays_events.iterrows():
-                    st.checkbox(label = event["EVENT_TITLE"], key= 'eventcheck_' + str(index))
+                    checkbox_key = f'eventcheck_{index}'
+                    is_checked = st.session_state['habit_status'].get(checkbox_key)
+                    completed = st.checkbox(label = event["EVENT_TITLE"], key=checkbox_key, value=is_checked)
+                    st.session_state['habit_status'][checkbox_key] = completed
             else:
                 st.write("No habits created")
                 st.info("Head to the Calendar page to create your habits!")
@@ -93,7 +102,8 @@ def display_journal():
         # When the submit button is pressed and the journal entry completed, process the journal
         if submit_button:
             st.session_state['journal_text'] = journal_entry
-            st.session_state['submitted'] = True
+            st.session_state['submitted'] =  True
+            st.session_state['journal_entries'].append(journal_entry)
 
             with st.spinner('Processing your Journal...'):
  
@@ -127,7 +137,7 @@ def display_journal():
 
                 # Insert the emotions extracted into the journal entries table to use in the dashboard
                 try:
-                    mf.insert_data("JOURNAL_ENTRIES", columns = ('user_id', 'date_created', 'angry', 'fear', 'happy', 'sad', 'surprise'), data = (str(user_id), journal_date, angry_score, fear_score, happy_score, sad_score, surprise_score))
+                    mf.insert_data("JOURNAL_ENTRIES", columns = ('user_id', 'date_created', 'journal_entry', 'angry', 'fear', 'happy', 'sad', 'surprise'), data = (str(user_id), journal_date, journal_entry, angry_score, fear_score, happy_score, sad_score, surprise_score))
                 except Exception as e:
                     st.error(f"Error submitting journal entry: {e}")
 
