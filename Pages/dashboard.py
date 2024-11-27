@@ -47,6 +47,13 @@ def display_dashboard():
         top_emotion_value = NA_str
         st.info('Submit your Journal to get more insights!')
 
+    with kpi1:
+            mf.kpi_card(
+                mf.mimicon_path(top_emotion) if top_emotion != NA_str else alt_emoticon, 
+                f"Feeling: {top_emotion}", 
+                f"{top_emotion_value}%"
+            )
+
 
     ## TODO repeated code from journal - maybe turn into a function
     if ('events_loaded' not in st.session_state) or (st.session_state['events_loaded'] == False):
@@ -188,12 +195,7 @@ def display_dashboard():
     else:
         st.info(f"Submit at least {min_entries} journals to see data!")
 
-        with kpi1:
-            mf.kpi_card(
-                mf.mimicon_path(top_emotion) if top_emotion != NA_str else alt_emoticon, 
-                f"Feeling: {top_emotion}", 
-                f"{top_emotion_value}%"
-            )
+       
         # with kpi2:
         #     # TODO Change the journal streat by extracting data and calculating current streak
         #     mf.kpi_card(f"assets/fire-icon.png", "Journal Streak", current_streak)
