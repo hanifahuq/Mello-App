@@ -542,7 +542,7 @@ def analyze_emotions(journal_entry):
         return extract_json(raw_content)
 
 def meow():
-    filepath = "assets\cat-meow.mp3"
+    filepath = "assets/cat-meow.mp3"
 
     mixer.init()
     mixer.music.load(filepath)

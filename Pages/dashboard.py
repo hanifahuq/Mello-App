@@ -127,7 +127,7 @@ def display_dashboard():
         best_streak = streaks['count'].max()
 
         with kpi3:
-            # TODO Change the journal streak by extracting data and calculate the best streak
+            #TODO Change the journal streak by extracting data and calculate the best streak
             mf.kpi_card(f"assets/trophy-icon.png", "Best Streak", best_streak)
 
 
