@@ -136,7 +136,7 @@ def display_journal():
                 st.session_state['events_loaded'] = False
 
                 # Play meow when the journal has been processed
-                mf.meow()
+                #mf.meow()
    
                 # Success message
                 # Inject CSS styles
@@ -192,7 +192,7 @@ def display_journal():
                     unsafe_allow_html=True,
                 )
 
-                super_mimi = mf.import_html_media("assets\mimi-icons\super-mimi.png")
+                super_mimi = mf.import_html_media("assets/mimi-icons/super-mimi.png")
 
                 st.markdown(
                     f"""

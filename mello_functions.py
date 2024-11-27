@@ -542,11 +542,11 @@ def analyze_emotions(journal_entry):
         return extract_json(raw_content)
 
 
-def meow():
-    filepath = "assets/cat-meow.mp3"
-    # Use Streamlit's built-in audio playback
-    with open(filepath, "rb") as audio_file:
-        st.audio(audio_file.read(), format="audio/mp3") 
+# def meow():
+#     filepath = "assets/cat-meow.mp3"
+#     # Use Streamlit's built-in audio playback
+#     with open(filepath, "rb") as audio_file:
+#         st.audio(audio_file.read(), format="audio/mp3") 
 
 
 # Function to send the prompt and get a CBT-specific response
