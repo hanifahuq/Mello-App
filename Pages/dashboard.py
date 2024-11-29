@@ -47,6 +47,9 @@ def display_dashboard():
         top_emotion_value = NA_str
         st.info('Submit your Journal to get more insights!')
 
+    
+    alt_emoticon = mf.mimicon_path("about")
+
     with kpi1:
             mf.kpi_card(
                 mf.mimicon_path(top_emotion) if top_emotion != NA_str else alt_emoticon, 
@@ -79,8 +82,6 @@ def display_dashboard():
     with kpi4:
             mf.kpi_card(mf.mimicon_path(todo_emoticon), "Todo's Today", remaining_tasks)
     
-
-    alt_emoticon = mf.mimicon_path("about")
 
     if 'emotions' in st.session_state and st.session_state['emotions']:
         # Set up the plot

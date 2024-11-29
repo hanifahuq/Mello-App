@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from datetime import datetime
 import openai
 import mello_functions as mf
-from st_mic_recorder import st_mic_recorder
 
 
 def display_journal():
@@ -89,18 +88,18 @@ def display_journal():
                                     key = "journal_input")
         
         # Add mic recorder
-        st.subheader("Record your journal:")
-        audio_data = st_mic_recorder()
+        # st.subheader("Record your journal:")
+        # audio_data = st_mic_recorder()
 
-        if st.form_submit_button("Transcribe Audio"):
-            if audio_data:
-                with st.spinner("Transcribing audio..."):
-                    transcribed_text = mf.transcribe_audio(audio_data)
-                    if transcribed_text:
-                        st.session_state['journal_text'] = transcribed_text
-                        st.success("Audio transcribed successfully! Text added to your journal entry")
+        # if st.form_submit_button("Transcribe Audio"):
+        #     if audio_data:
+        #         with st.spinner("Transcribing audio..."):
+        #             transcribed_text = mf.transcribe_audio(audio_data)
+        #             if transcribed_text:
+        #                 st.session_state['journal_text'] = transcribed_text
+        #                 st.success("Audio transcribed successfully! Text added to your journal entry")
         
-        submit_button = st.form_submit_button("Submit")
+        # submit_button = st.form_submit_button("Submit")
     
         # Adds the habits to the Journal page which can be ticked when completed
         st.subheader("To Do:")
