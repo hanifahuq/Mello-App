@@ -693,7 +693,7 @@ def transcribe_audio(audio_data):
     response = requests.post(
         "https://api.assemblyai.com/v2/upload",
         headers=headers,
-        data=base64.b64decode(audio_data.split(",")[1])
+        data=audio_data
     )
     upload_url = response.json()['upload_url']
 

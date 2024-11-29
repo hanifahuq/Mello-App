@@ -5,6 +5,9 @@ from dotenv import load_dotenv
 from datetime import datetime
 import openai
 import mello_functions as mf
+from streamlit_webrtc import webrtc_streamer, AudioProcessorBase, WebRtcMode
+import numpy as np
+import io
 
 
 def display_journal():
@@ -47,6 +50,15 @@ def display_journal():
 
     openai.api_key = st.secrets["OPENAI_API_KEY"]
 
+    class AudioProcessor(AudioProcessorBase):
+        def __init__(self):
+            self.audio_frames = []
+
+        def recv_audio(self, frame):
+            # Collect audio frames
+            self.audio_frames.append(frame.to_ndarray().flatten())
+            return frame
+
     
     # TODO put this into mello functions -- repeated code from habit.py
     # Get all events due for today
@@ -78,6 +90,30 @@ def display_journal():
     # # Create journal entry form to add to table
     # if not st.session_state['submitted']:
 
+    # Audio recording
+    st.subheader("Record Your Voice:")
+    audio_processor = webrtc_streamer(
+        key="audio_recorder",
+        mode=WebRtcMode.SENDRECV,
+        audio_receiver_size=256,
+        video_receiver_size=0,
+        media_stream_constraints={"audio": True, "video": False},
+        async_processing=True,
+        audio_processor_factory=AudioProcessor,
+    )
+
+    if st.button("Transcribe Audio"):
+        if audio_processor and audio_processor.audio_processor:
+            # Convert the audio frames into a single audio stream
+            audio_frames = np.concatenate(audio_processor.audio_processor.audio_frames)
+            audio_bytes = io.BytesIO(audio_frames.tobytes())
+
+            with st.spinner("Transcribing audio..."):
+                transcribed_text = mf.transcribe_audio(audio_bytes.getvalue())
+                if transcribed_text:
+                    st.session_state["journal_text"] = transcribed_text
+                    st.success("Audio transcribed successfully!")
+
     with st.form(key = "Journal Entry"):
         
         # Journal entry text area
@@ -86,6 +122,8 @@ def display_journal():
                                     height=250,
                                     placeholder=example_questions,
                                     key = "journal_input")
+        
+
         
         # Add mic recorder
         # st.subheader("Record your journal:")
